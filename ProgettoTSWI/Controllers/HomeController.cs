@@ -1,8 +1,13 @@
+//Yo!Simo, scusa se l'ho fatto solo ora ma in sti giorni sono stato pieno ahahh
+
+
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ProgettoTSWI.Models;
 
 namespace ProgettoTSWI.Controllers;
+
+
 
 public class HomeController : Controller
 {
@@ -15,6 +20,7 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
+        Console.WriteLine("Index!");
         return View();
     }
 
