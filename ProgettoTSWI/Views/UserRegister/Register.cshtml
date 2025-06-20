@@ -1,0 +1,70 @@
+﻿@model ProgettoTSWI.Models.User
+
+@{
+    ViewData["Title"] = "Registrazione";
+}
+
+<h2 class="text-center mt-4">Registrazione</h2>
+
+<div class="container mt-4">
+    <form asp-action="Register" method="post" class="w-50 mx-auto">
+
+        <div class="form-group mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Surname" class="form-label"></label>
+            <input asp-for="Surname" class="form-control" />
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Aka" class="form-label"></label>
+            <input asp-for="Aka" class="form-control" />
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="InstaProfile" class="form-label">Instagram</label>
+            <input asp-for="InstaProfile" class="form-control" />
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="ConfermaPassword" class="form-label">Conferma Password</label>
+            <input asp-for="ConfermaPassword" class="form-control" />
+            <span asp-validation-for="ConfermaPassword" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-4">
+            <label asp-for="Ruolo" class="form-label">Ruolo</label>
+            <select asp-for="Ruolo" class="form-select">
+                <option value="">-- Seleziona ruolo --</option>
+                <option value="Utente">Utente</option>
+                <option value="Admin">Admin</option>
+            </select>
+            <span asp-validation-for="Ruolo" class="text-danger"></span>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">Registrati</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
