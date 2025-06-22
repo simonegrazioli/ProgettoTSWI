@@ -25,30 +25,18 @@ namespace ProgettoTSWI.Controllers
         {
             if (!ModelState.IsValid)
             {
-                //aggiungo per verificare aka che sta dando problemi, me lo segna come null
-                var akaErrors = ModelState["Aka"]?.Errors;
-                if (akaErrors != null && akaErrors.Count > 0)
-                {
-                    foreach (var error in akaErrors)
-                    {
-                        // Logga o visualizza l'errore
-                        Console.WriteLine("---------------da qui----------------");
-                        Console.WriteLine(error.ErrorMessage);
-                        Console.WriteLine("---------------a qui----------------");
-                    }
-                }
-
-
+                
                 return View(model);
             }
 
             var user = new User
             {
                 Name = model.Name,
+                Surname = model.Surname,    
                 Email = model.Email,
+                InstaProfile = model.InstaProfile,
                 Aka = model.Aka,
                 Password = BCrypt.Net.BCrypt.HashPassword(model.Password),
-                //Ruolo = "Utente" // o "user"
                 Ruolo = model.Ruolo,
             };
 
@@ -58,7 +46,7 @@ namespace ProgettoTSWI.Controllers
             // TODO: invia mail di benvenuto
             // await _emailService.SendWelcomeEmail(user.Email);
 
-            return RedirectToAction("Login");
+            return RedirectToAction("Index", "Home");
         }
     }
 }
