@@ -18,6 +18,9 @@ namespace ProgettoTSWI.Models
         [MaxLength(200)]
         public string EventLocation { get; set; }
 
+        [MaxLength(50)]
+        public string Status { get; set; }
+
         // Relazione con Participation
         public virtual ICollection<participation> Participations { get; set; }
     }

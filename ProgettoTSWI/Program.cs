@@ -12,7 +12,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.Cookie.Name = "Cookie";
+        options.Cookie.Name = "TempAuthCookie";
         options.LoginPath = "/Home/Index";
         options.AccessDeniedPath = "/Home/Index"; //se accesso negato reindirizzo a index per effettuare l'accesso
     });
@@ -55,7 +55,13 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "Admin",
+    pattern: "Admin/{action}",
+    defaults: new { controller = "Admin" });
 
 app.MapControllerRoute(
     name: "default",

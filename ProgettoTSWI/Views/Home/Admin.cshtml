@@ -1,7 +1,23 @@
 ﻿@{
-    ViewData["Title"] = "AfterLog";
+    ViewData["Title"] = "Admin";
 }
 
+
 <div class="container mt-5" style="max-width: 400px;">
-    <h1>inserisci, modifica o elimina il corso</h1>
+    <h1>Insert, edit or delete courses</h1>
+
+    <div class="list-group mt-4">
+        <a asp-controller="Admin" asp-action="ManageEvents" class="list-group-item list-group-item-action">
+            Manage Events
+        </a>
+        <a asp-controller="Admin" asp-action="ApproveRequests" class="list-group-item list-group-item-action">
+            Approve Requests
+        </a>
+        <a asp-controller="Admin" asp-action="DeleteReviews" class="list-group-item list-group-item-action">
+            Delete Reviews
+        </a>
+        <a asp-controller="Admin" asp-action="DeleteUsers" class="list-group-item list-group-item-action">
+            Delete Users
+        </a>
+    </div>
 </div>
