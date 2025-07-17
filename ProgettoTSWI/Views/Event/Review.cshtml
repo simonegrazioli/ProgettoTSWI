@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Scrivi Recensione";
+    var eventId = ViewBag.EventId;
+}
+
+<h2>Scrivi una recensione</h2>
+
+<form asp-action="Review" method="post">
+    <input type="hidden" name="id" value="@eventId" />
+    
+    <div class="form-group">
+        <label for="review">Recensione:</label>
+        <textarea name="review" class="form-control" rows="4" required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">Invia Recensione</button>
+</form>
+

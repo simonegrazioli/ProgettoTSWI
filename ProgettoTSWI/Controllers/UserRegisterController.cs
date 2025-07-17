@@ -1,52 +1,60 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ProgettoTSWI.Data.TuoProgetto.Data;
+using Microsoft.EntityFrameworkCore;
+using ProgettoTSWI.Data;
 using ProgettoTSWI.Models;
 using System.Threading.Tasks;
 
-namespace ProgettoTSWI.Controllers
+public class UserRegisterController : Controller
 {
-    public class UserRegisterController : Controller
+    private readonly ApplicationDbContext _context;
+
+    public UserRegisterController(ApplicationDbContext context)
     {
-        private readonly ApplicationDbContext _context;
+        _context = context;
+    }
 
-        public UserRegisterController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+    [HttpGet]
+    public IActionResult Register()
+    {
+        return View();
+    }
 
-        [HttpGet]
-        public IActionResult Register()
+    [HttpPost]
+    public async Task<IActionResult> Register(User model)
+    {
+        if (!ModelState.IsValid)
         {
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Register(User model)
-        {
-            if (!ModelState.IsValid)
+            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
             {
-                
-                return View(model);
+                Console.WriteLine("Errore di validazione: " + error.ErrorMessage);
             }
-
-            var user = new User
-            {
-                Name = model.Name,
-                Surname = model.Surname,    
-                Email = model.Email,
-                InstaProfile = model.InstaProfile,
-                Aka = model.Aka,
-                Password = BCrypt.Net.BCrypt.HashPassword(model.Password),
-                Ruolo = model.Ruolo,
-            };
-
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            // TODO: invia mail di benvenuto
-            // await _emailService.SendWelcomeEmail(user.Email);
-
-            return RedirectToAction("Index", "Home");
+            return View(model);
         }
+
+
+        // Controllo eventuale unicità email
+        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+        if (existingUser != null)
+        {
+            ModelState.AddModelError("Email", "Email già registrata");
+            return View(model);
+        }
+
+        var user = new User
+        {
+            Name = model.Name,
+            Surname = model.Surname,
+            Aka = model.Aka,
+            InstaProfile = model.InstaProfile,
+            Email = model.Email,
+            Password = BCrypt.Net.BCrypt.HashPassword(model.Password),
+            //Ruolo = "User"
+        };
+
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        // Reindirizza alla home dopo registrazione
+        return RedirectToAction("Index", "Home");
     }
 }

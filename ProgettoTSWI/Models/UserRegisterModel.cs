@@ -31,8 +31,14 @@ namespace ProgettoTSWI.Models
         [NotMapped] // Questo fa sì che EF lo ignori
         public string ConfermaPassword { get; set; }
 
-        [Required(ErrorMessage ="Scegli il ruolo")]
-        public string Ruolo { get; set; }
+        [Required] // Aggiungi Required se vuoi essere certo che non sia null
+        public string Ruolo { get; set; } = "User";
+
+        // Inizializza le collezioni per evitare problemi con EF
+        public virtual ICollection<Participation> Participations { get; set; } = new List<Participation>();
+
+        public virtual ICollection<Event> OrganizedEvents { get; set; } = new List<Event>();
+
 
 
     }

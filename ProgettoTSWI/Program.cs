@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using ProgettoTSWI.Data.TuoProgetto.Data;
+using ProgettoTSWI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

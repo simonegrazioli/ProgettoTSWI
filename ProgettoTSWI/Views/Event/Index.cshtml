@@ -1,0 +1,38 @@
+﻿@model IEnumerable<ProgettoTSWI.Models.Event>
+@{
+    ViewData["Title"] = "Eventi Approvati";
+}
+
+<h2>Eventi approvati</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Data</th>
+            <th>Luogo</th>
+            <th>Prezzo</th>
+            <th>Organizzatore</th>
+            <th>Azioni</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var ev in Model)
+    {
+        <tr>
+            <td>@ev.EventName</td>
+            <td>@ev.EventDate.ToShortDateString()</td>
+            <td>@ev.EventLocation</td>
+            <td>@(ev.EventPrice.HasValue ? ev.EventPrice.Value.ToString("C") : "Gratis")</td>
+            <td>@(ev.Organizer?.Name ?? "N/D")</td>
+            <td>
+                <form asp-action="Join" method="post" asp-route-id="@ev.EventId" style="display:inline;">
+                    <button type="submit" class="btn btn-success btn-sm">Partecipa</button>
+                </form>
+
+                <a class="btn btn-primary btn-sm" asp-action="Review" asp-route-id="@ev.EventId">Recensisci</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
