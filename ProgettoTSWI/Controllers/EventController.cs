@@ -16,16 +16,19 @@ namespace progetto_prove.Controllers
             _context = context;
         }
 
+        
         // Mostra solo gli eventi approvati
         public async Task<IActionResult> Index()
         {
             var approvedEvents = await _context.Events
                 .Where(e => e.IsApproved)
                 .Include(e => e.Organizer)
+                .Include(e => e.Participations) 
                 .ToListAsync();
 
             return View(approvedEvents);
         }
+
 
         // POST: /Event/Join - Partecipa all'evento (senza aprire pagina)
         [HttpPost]
@@ -38,7 +41,7 @@ namespace progetto_prove.Controllers
 
             int userId = int.Parse(userIdClaim);
 
-            // Evita doppie partecipazioni
+            // Evita doppie partecipazioni, dovrei poterlo togliere!
             bool alreadyJoined = await _context.Participations
                 .AnyAsync(p => p.ParticipationEventId == id && p.ParticipationUserId == userId);
             if (!alreadyJoined)
@@ -55,6 +58,30 @@ namespace progetto_prove.Controllers
 
             return RedirectToAction("Index");
         }
+
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Leave(int id)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null) return Unauthorized();
+
+            int userId = int.Parse(userIdClaim);
+
+            var participation = await _context.Participations
+                .FirstOrDefaultAsync(p => p.ParticipationEventId == id && p.ParticipationUserId == userId);
+
+            if (participation != null)
+            {
+                _context.Participations.Remove(participation);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Index");
+        }
+
+
 
         // GET: /Event/Review?id=5 - Mostra form recensione
         [Authorize]

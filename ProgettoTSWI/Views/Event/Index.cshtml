@@ -3,6 +3,13 @@
     ViewData["Title"] = "Eventi Approvati";
 }
 
+@using System.Security.Claims
+@{
+
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+}
+
 <h2>Eventi approvati</h2>
 
 <table class="table table-striped">
@@ -26,12 +33,37 @@
             <td>@(ev.EventPrice.HasValue ? ev.EventPrice.Value.ToString("C") : "Gratis")</td>
             <td>@(ev.Organizer?.Name ?? "N/D")</td>
             <td>
-                <form asp-action="Join" method="post" asp-route-id="@ev.EventId" style="display:inline;">
-                    <button type="submit" class="btn btn-success btn-sm">Partecipa</button>
-                </form>
 
-                <a class="btn btn-primary btn-sm" asp-action="Review" asp-route-id="@ev.EventId">Recensisci</a>
-            </td>
+            @if(User.Identity.IsAuthenticated)
+            {
+                var partecipazione = ev.Participations?.FirstOrDefault(p => p.ParticipationUserId.ToString() == userId);
+
+
+            
+
+            <!-- Qui analizzo partecipazione, se partecipazione non è nulla allora form eseguira Join -->
+            <form asp-controller="Event" asp-action="@(partecipazione == null ? "Join" : "Leave")" method="post">
+                    <input type="hidden" name="id" value="@ev.EventId" />
+                    
+                    <!--Qua stessa dinamica della riga sopra solo con il modo in cui appare il bottone -->
+                    <button type="submit" class="btn btn-sm @(partecipazione == null ? "btn-success" : "btn-danger")">
+                        @(partecipazione == null ? "Partecipa" : "Non partecipo più")
+                    </button>
+            </form>
+
+
+            <!--Questo bottone compare nel momento in cui io partecipo altrimenti non c'è-->
+           @if(partecipazione != null){
+                 <a class="btn btn-primary btn-sm mt-2" asp-controller="Event" asp-action="Review" asp-route-id="@ev.EventId">
+                        Recensisci
+                    </a>
+                }
+           }
+           else
+           {
+                <p><em>Effettua il login per partecipare</em></p>
+           }
+                
         </tr>
     }
     </tbody>

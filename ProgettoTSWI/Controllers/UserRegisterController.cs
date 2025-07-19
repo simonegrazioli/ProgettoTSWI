@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProgettoTSWI.Data;
 using ProgettoTSWI.Models;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 public class UserRegisterController : Controller
@@ -54,7 +57,26 @@ public class UserRegisterController : Controller
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.Name),
+            new Claim(ClaimTypes.Email, user.Email),
+            //di questo non sono del tutto sicuro perchè io non uso
+            //nel database e nel controller in tipo Role ma semplicemente una stringa
+            new Claim(ClaimTypes.Role, user.Ruolo)
+        };
+
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
         // Reindirizza alla home dopo registrazione
-        return RedirectToAction("Index", "Home");
+        //return RedirectToAction("Index", "Home");
+
+        //Reinderizza dopo la registrazione ad event
+        return RedirectToAction("Index", "Event");
     }
 }

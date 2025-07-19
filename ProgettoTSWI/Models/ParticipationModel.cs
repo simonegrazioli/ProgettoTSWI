@@ -7,9 +7,11 @@ namespace ProgettoTSWI.Models
     {
         public int ParticipationId { get; set; }
 
-        public string ParticipationReview { get; set; }
+        //devo metterla nullable perchè un utente può premere sul pulsante per partecipare 
+        // ma può non recensirla
+        public string? ParticipationReview { get; set; }
 
-        // Foreign Keys
+        // Foreign Keys<
         public int ParticipationEventId { get; set; }
         public int ParticipationUserId { get; set; }
         
