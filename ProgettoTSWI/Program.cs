@@ -12,9 +12,14 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         //indica dove deve essere reindirizzato l'utente se prova ad andare su una pagina dove
         //dovrebbe essere loggato senza esserlo: 
         // UserLogin è il nome del contreller se è dvisero allora bisogna cambiarlo!!
-        options.LoginPath = "/UserLogin/Login";
+        
+        //options.LoginPath = "/UserLogin/Login";
+
         //se invece non ha i permessi giusti viene mandato qui
-        options.AccessDeniedPath = "/Home/AccessDenied";
+        //options.AccessDeniedPath = "/Home/AccessDenied";
+
+        options.LoginPath = "/Home/Index";
+        options.AccessDeniedPath = "/Home/Index"; //se accesso negato reindirizzo a index per effettuare l'accesso
     }
 
     );
@@ -42,6 +47,11 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "Admin",
+    pattern: "Admin/{action}",
+    defaults: new { controller = "Admin" });
 
 app.MapControllerRoute(
     name: "default",

@@ -1,0 +1,34 @@
+﻿@model ProgettoTSWI.Models.User
+@{
+    ViewData["Title"] = "Modifica Profilo";
+}
+
+<h2>Modifica i tuoi dati</h2>
+
+<!--Non devono essere required ne può cambiare solo alcuni -->
+<form asp-action="Edit" method="post">
+    <div class="form-group">
+        <label>Nome</label>
+        <input class="form-control" asp-for="Name"  />
+    </div>
+    <div class="form-group">
+        <label>Surname</label>
+        <input class="form-control" asp-for="Surname"  />
+    </div>
+    <div class="form-group">
+        <label>Email</label>
+        <input class="form-control" asp-for="Email" type="email"  />
+    </div>
+     <div class="form-group">
+        <label>Insta</label>
+        <input class="form-control" asp-for="InstaProfile" />
+    </div>
+     <div class="form-group">
+        <label>Aka</label>
+        <input class="form-control" asp-for="Aka"  />
+    </div>
+
+    <!-- altri campi se vuoi -->
+
+    <button type="submit" class="btn btn-success mt-2">Salva modifiche</button>
+</form>

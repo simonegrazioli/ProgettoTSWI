@@ -79,4 +79,7 @@ public class UserRegisterController : Controller
         //Reinderizza dopo la registrazione ad event
         return RedirectToAction("Index", "Event");
     }
+
+
+
 }

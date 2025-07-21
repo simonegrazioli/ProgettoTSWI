@@ -1,18 +1,29 @@
 ﻿@{
     ViewData["Title"] = "Scrivi Recensione";
     var eventId = ViewBag.EventId;
+    var existingReview = ViewBag.ExistingReview as string;
 }
 
 <h2>Scrivi una recensione</h2>
 
-<form asp-action="Review" method="post">
-    <input type="hidden" name="id" value="@eventId" />
+@if (!string.IsNullOrEmpty(existingReview))
+{
+    <div class="alert alert-info">
+        Hai già scritto una recensione:
+        <blockquote>@existingReview</blockquote>
+        Puoi aggiornarla qui sotto.
+    </div>
+}
+
+<<form asp-controller="Event" asp-action="SubmitReview" method="post">
+    <input type="hidden" name="id" value="@ViewBag.EventId" />
     
     <div class="form-group">
         <label for="review">Recensione:</label>
-        <textarea name="review" class="form-control" rows="4" required></textarea>
+        <textarea name="review" class="form-control" rows="4" required>@ViewBag.ExistingReview</textarea>
     </div>
 
-    <button type="submit" class="btn btn-primary mt-2">Invia Recensione</button>
+    <button type="submit" class="btn btn-primary mt-2">Salva Recensione</button>
 </form>
+
 

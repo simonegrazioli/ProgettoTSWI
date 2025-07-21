@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProgettoTSWI.Data;
 using ProgettoTSWI.Models;
-using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
 namespace progetto_prove.Controllers
@@ -81,37 +83,95 @@ namespace progetto_prove.Controllers
             return RedirectToAction("Index");
         }
 
-
-
-        // GET: /Event/Review?id=5 - Mostra form recensione
+        [HttpGet]
         [Authorize]
-        public IActionResult Review(int id)
+        public async Task<IActionResult> Review(int id)
         {
-            ViewBag.EventId = id;
-            return View();
-        }
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        // POST: /Event/Review - Salva recensione
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Review(int id, string review)
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userIdClaim == null) return Unauthorized();
-
-            int userId = int.Parse(userIdClaim);
-
-            // Trova la partecipazione esistente
             var participation = await _context.Participations
                 .FirstOrDefaultAsync(p => p.ParticipationEventId == id && p.ParticipationUserId == userId);
 
-            if (participation != null)
+            if (participation == null)
+                return Forbid(); // l'utente non ha partecipato
+
+            ViewBag.EventId = id;
+            ViewBag.ExistingReview = participation.ParticipationReview;
+
+            return View(); // carica Views/Event/Review.cshtml
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> SubmitReview(int id, string review)
+        {
+            if (string.IsNullOrWhiteSpace(review))
             {
-                participation.ParticipationReview = review;
-                await _context.SaveChangesAsync();
+                ViewBag.EventId = id;
+                ModelState.AddModelError("", "La recensione non può essere vuota.");
+                return View("Review");
             }
 
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var participation = await _context.Participations
+                .FirstOrDefaultAsync(p => p.ParticipationEventId == id && p.ParticipationUserId == userId);
+
+            if (participation == null)
+                return Forbid();
+
+            participation.ParticipationReview = review;
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = "Recensione salvata con successo!";
             return RedirectToAction("Index");
         }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            // Questo elimina il cookie e tutti i claims dell'utente
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Redirect alla home o alla pagina di login
+            return RedirectToAction("Index", "Home");
+        }
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Create(EventFormViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var evento = new Event
+            {
+                EventName = model.EventName,
+                EventDate = model.EventDate,
+                EventLocation = model.EventLocation,
+                EventPrice = model.EventPrice,
+                OrganizerId = userId,
+                IsApproved = false
+            };
+
+            _context.Events.Add(evento);
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = "Evento proposto con successo! Sarà visibile dopo approvazione.";
+            return RedirectToAction("Index");
+        }
+
+
+
     }
 }

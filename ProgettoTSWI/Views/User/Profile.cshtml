@@ -1,0 +1,40 @@
+﻿@model ProgettoTSWI.Models.User
+@{
+    ViewData["Title"] = "Profilo Utente";
+}
+
+<h2>Benvenuto, @Model.Name</h2>
+
+<div class="card mt-3 p-3">
+    <h4>Informazioni personali</h4>
+    <p><strong>Email:</strong> @Model.Email</p>
+    <p><strong>Nome:</strong> @Model.Name</p>
+     <p><strong>Cognome:</strong> @Model.Surname</p>
+    <p><strong>Aka:</strong> @Model.Aka</p>
+    <p><strong>Profilo instagram:</strong> @Model.InstaProfile</p>
+    <!-- altri dati -->
+    <a class="btn btn-primary" href="@Url.Action("Edit", "User")">Modifica i tuoi dati</a>
+</div>
+
+<div class="mt-4">
+    <h4>Eventi a cui hai partecipato</h4>
+    @if (Model.Participations.Any())
+    {
+        <ul class="list-group">
+            @foreach (var p in Model.Participations)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>@p.Event.EventName</strong> – @p.Event.EventDate.ToShortDateString()
+                        <br />
+                        Recensione: @(string.IsNullOrWhiteSpace(p.ParticipationReview) ? "Nessuna" : p.ParticipationReview)
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>Non hai ancora partecipato a nessun evento.</p>
+    }
+</div>
