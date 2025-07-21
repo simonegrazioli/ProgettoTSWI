@@ -4,7 +4,7 @@
     var existingReview = ViewBag.ExistingReview as string;
 }
 
-<h2>Scrivi una recensione</h2>
+<h2 class="text-center mb-4">Scrivi una recensione</h2>
 
 @if (!string.IsNullOrEmpty(existingReview))
 {
@@ -15,7 +15,10 @@
     </div>
 }
 
-<<form asp-controller="Event" asp-action="SubmitReview" method="post">
+<div class="login-background d-flex align-items-center justify-content-center min-vh-100">
+    <div class="login-card p-4 rounded shadow" style="max-width: 400px; width: 100%;">
+
+<form asp-controller="Event" asp-action="SubmitReview" method="post">
     <input type="hidden" name="id" value="@ViewBag.EventId" />
     
     <div class="form-group">
@@ -25,5 +28,8 @@
 
     <button type="submit" class="btn btn-primary mt-2">Salva Recensione</button>
 </form>
+
+</div>
+</div>
 
 

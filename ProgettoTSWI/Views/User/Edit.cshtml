@@ -3,10 +3,12 @@
     ViewData["Title"] = "Modifica Profilo";
 }
 
-<h2>Modifica i tuoi dati</h2>
+
+
+<h2 class="text-center mb-4">>Modifica i tuoi dati</h2>
 
 <!--Non devono essere required ne può cambiare solo alcuni -->
-<form asp-action="Edit" method="post">
+<form asp-action="Edit" method="post"  class="form-wrapper mx-auto">
     <div class="form-group">
         <label>Nome</label>
         <input class="form-control" asp-for="Name"  />

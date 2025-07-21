@@ -5,13 +5,16 @@
     ViewData["Title"] = "Proponi un nuovo evento";
 }
 
-<h2>Proponi un nuovo evento</h2>
+<h2 class="text-center mb-4">Proponi un nuovo evento</h2>
 
-<form asp-action="Create" method="post">
+<div class="login-background d-flex align-items-center justify-content-center min-vh-100">
+<div class="login-card p-4 rounded shadow" style="max-width: 400px; width: 100%;">
+
+<form asp-action="Create" method="post"  class="form-wrapper mx-auto">
 
       @Html.AntiForgeryToken()
 
-    <div class="form-group">
+    <div class="form-group" >
         <label>Nome evento</label>
         <input asp-for="EventName" class="form-control" required />
     </div>
@@ -47,3 +50,5 @@
 
 </form>
 
+</div>
+</div>

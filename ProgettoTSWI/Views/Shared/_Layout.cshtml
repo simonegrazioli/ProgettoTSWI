@@ -25,39 +25,44 @@
 
 
 <body>
-   <header class="navbar navbar-expand-lg navbar-light bg-light p-3">
-    <div class="container-fluid">
-        <!--  <a class="navbar-brand" href="@Url.Action("Index", "Home")">IlTuoSito</a>  -->
+  <header class="navbar navbar-expand-lg navbar-light bg-light shadow-sm py-3">
+    <div class="container">
+       
 
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <ul class="navbar-nav d-flex flex-wrap justify-content-center align-items-center gap-3">
+
                 <li class="nav-item">
-                    <a class="nav-link" href="@Url.Action("Index", "Event")">Eventi</a>
+                    <a class="btn btn-outline-dark px-4" href="@Url.Action("Index", "Event")">Eventi</a>
                 </li>
-
-
 
                 @if (User.Identity?.IsAuthenticated ?? false)
                 {
                     <li class="nav-item">
-                        <a class="nav-link" href="@Url.Action("Profile", "User")">Profilo</a>
+                        <a class="btn btn-outline-dark px-4" href="@Url.Action("Profile", "User")">Profilo</a>
                     </li>
+
                     <li class="nav-item">
                         <form asp-controller="Event" asp-action="Logout" method="post" class="d-inline">
                             @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-link nav-link">Logout</button>
+                            <button type="submit" class="btn btn-outline-danger px-4">Logout</button>
                         </form>
                     </li>
+
                     <li class="nav-item">
-                         <a class="nav-link btn btn-outline-primary" asp-controller="Event" asp-action="Create">Proponi Evento</a>
+                        <a class="btn btn-outline-success px-4" asp-controller="Event" asp-action="Create">Proponi Evento</a>
                     </li>
                 }
                 else
-                {   
-                    //se mi trovo nella pagina di registrazione, è inutile il pulsante per registrarsi in alto a destra
-                    @if(!IsCurrentPage("Home", "Index")){
+                {
+                    @if (!IsCurrentPage("Home", "Index"))
+                    {
                         <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("Index", "Home")">Accedi</a>
+                            <a class="btn btn-outline-primary px-4" href="@Url.Action("Index", "Home")">Accedi</a>
                         </li>
                     }
                 }
@@ -65,6 +70,8 @@
         </div>
     </div>
 </header>
+
+
 
     <div class="container">
         <main role="main" class="pb-3">
