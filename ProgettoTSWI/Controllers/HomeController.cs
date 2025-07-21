@@ -48,39 +48,58 @@ namespace ProgettoTSWI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string Email, string Password)
         {
-            if (ModelState.IsValid)
+            try
             {
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == Email);
 
-                if (user != null)
+                if (ModelState.IsValid)
                 {
-                    // Verifica la password con BCrypt
-                    if (BCrypt.Net.BCrypt.Verify(Password, user.Password))
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == Email);
+
+                    if (user != null)
                     {
-                        // Login riuscito
-                        var claims = new List<Claim>
+                        // Verifica la password con BCrypt
+                        if (BCrypt.Net.BCrypt.Verify(Password, user.Password))
                         {
-                            new Claim(ClaimTypes.Role, user.Ruolo)
-                        };
+                            // Login riuscito
+                            var claims = new List<Claim>
+                            {
+                                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                                new Claim(ClaimTypes.Role, user.Ruolo)
+                            };
 
-                        var claimsIdentity = new ClaimsIdentity(
-                            claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                            var claimsIdentity = new ClaimsIdentity(
+                                claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                        await HttpContext.SignInAsync(
-                            CookieAuthenticationDefaults.AuthenticationScheme,
-                            new ClaimsPrincipal(claimsIdentity));
+                            await HttpContext.SignInAsync(
+                                CookieAuthenticationDefaults.AuthenticationScheme,
+                                new ClaimsPrincipal(claimsIdentity));
 
-                        // reindirizzamento basato sul ruolo
-                        if (user.Ruolo == "Admin")
-                        {
-                            return RedirectToAction("Admin", "Home");
+                            // reindirizzamento basato sul ruolo
+                            if (user.Ruolo == "Admin")
+                            {
+                                return RedirectToAction("Admin", "Home");
+                            }
+                            else //si assume che se un utente non è admin è per forza user
+                            {
+                                return RedirectToAction("AfterLog", "Home");
+                            }
                         }
-                        else //si assume che se un utente non è admin è per forza user
+                        else
                         {
-                            return RedirectToAction("AfterLog", "Home");
+                            TempData["ErrorMessage"] = "Login fallito, credenziali errate";
+                            return RedirectToAction("Index", "Home");
                         }
                     }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "Login fallito, credenziali errate";
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
+            }catch(Exception ex)
+            {
+                TempData["ErrorMessage"] = "Problemi server";
+                return RedirectToAction("Index", "Home");
             }
 
 

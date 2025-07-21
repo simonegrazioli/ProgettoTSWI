@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProgettoTSWI.Data;
 
@@ -11,9 +12,11 @@ using ProgettoTSWI.Data;
 namespace ProgettoTSWI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250716072604_AddStatus2Events")]
+    partial class AddStatus2Events
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -46,20 +49,17 @@ namespace ProgettoTSWI.Migrations
                     b.Property<decimal?>("EventPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("OrganizerId")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("EventId");
-
-                    b.HasIndex("OrganizerId");
 
                     b.ToTable("Events");
                 });
 
-            modelBuilder.Entity("ProgettoTSWI.Models.Participation", b =>
+            modelBuilder.Entity("ProgettoTSWI.Models.participation", b =>
                 {
                     b.Property<int>("ParticipationId")
                         .ValueGeneratedOnAdd()
@@ -70,7 +70,11 @@ namespace ProgettoTSWI.Migrations
                     b.Property<int>("ParticipationEventId")
                         .HasColumnType("int");
 
+                    b.Property<int>("ParticipationOrganizerId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ParticipationReview")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ParticipationUserId")
@@ -85,7 +89,7 @@ namespace ProgettoTSWI.Migrations
                     b.ToTable("Participations");
                 });
 
-            modelBuilder.Entity("ProgettoTSWI.Models.User", b =>
+            modelBuilder.Entity("ProgettoTSWI.Models.user", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -124,18 +128,7 @@ namespace ProgettoTSWI.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ProgettoTSWI.Models.Event", b =>
-                {
-                    b.HasOne("ProgettoTSWI.Models.User", "Organizer")
-                        .WithMany("OrganizedEvents")
-                        .HasForeignKey("OrganizerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Organizer");
-                });
-
-            modelBuilder.Entity("ProgettoTSWI.Models.Participation", b =>
+            modelBuilder.Entity("ProgettoTSWI.Models.participation", b =>
                 {
                     b.HasOne("ProgettoTSWI.Models.Event", "Event")
                         .WithMany("Participations")
@@ -143,7 +136,7 @@ namespace ProgettoTSWI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ProgettoTSWI.Models.User", "User")
+                    b.HasOne("ProgettoTSWI.Models.user", "User")
                         .WithMany("Participations")
                         .HasForeignKey("ParticipationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -159,10 +152,8 @@ namespace ProgettoTSWI.Migrations
                     b.Navigation("Participations");
                 });
 
-            modelBuilder.Entity("ProgettoTSWI.Models.User", b =>
+            modelBuilder.Entity("ProgettoTSWI.Models.user", b =>
                 {
-                    b.Navigation("OrganizedEvents");
-
                     b.Navigation("Participations");
                 });
 #pragma warning restore 612, 618

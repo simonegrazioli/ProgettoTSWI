@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProgettoTSWI.Models
 {
-    public class user
+    public class User
     {
         public int Id { get; set; }  // chiave primaria con auto-incremento --> non va richiamata durante la creazione
 
@@ -29,11 +29,13 @@ namespace ProgettoTSWI.Models
         [NotMapped] // Questo fa sì che EF lo ignori
         public string ConfermaPassword { get; set; }
 
-        [Required(ErrorMessage = "Scegli il ruolo")]
-        public string Ruolo { get; set; }
+        [Required] 
+        public string Ruolo { get; set; } = "User";
 
         // Relazione con participation
-        public virtual ICollection<participation> Participations { get; set; }
+        public virtual ICollection<Participation> Participations { get; set; }
+
+        public virtual ICollection<Event> OrganizedEvents { get; set; } = new List<Event>();
     }
 
 }

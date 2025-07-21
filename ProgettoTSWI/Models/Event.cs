@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ProgettoTSWI.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ProgettoTSWI.Models
 {
@@ -18,11 +19,16 @@ namespace ProgettoTSWI.Models
         [MaxLength(200)]
         public string EventLocation { get; set; }
 
-        [MaxLength(50)]
-        public string Status { get; set; }
+
+        //aggiunta del campo approved per un evento
+        public bool IsApproved { get; set; } = false;
+
+        public int OrganizerId { get; set; }
+        public virtual User Organizer { get; set; }
+         
 
         // Relazione con Participation
-        public virtual ICollection<participation> Participations { get; set; }
+        public virtual ICollection<Participation> Participations { get; set; }
     }
 
 }

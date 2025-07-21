@@ -4,8 +4,15 @@
 
 
 <div class="container mt-5" style="max-width: 400px;">
-    <h1>Insert, edit or delete courses</h1>
-
+    <h2>You can perform the following functions as an admin</h2>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    else if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
     <div class="list-group mt-4">
         <a asp-controller="Admin" asp-action="ManageEvents" class="list-group-item list-group-item-action">
             Manage Events
