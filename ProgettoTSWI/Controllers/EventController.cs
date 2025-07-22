@@ -7,7 +7,7 @@ using ProgettoTSWI.Data;
 using ProgettoTSWI.Models;
 using System.Security.Claims;
 
-namespace progetto_prove.Controllers
+namespace ProgettoTSWI.Controllers
 {
     public class EventController : Controller
     {

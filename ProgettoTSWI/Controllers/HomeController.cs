@@ -1,4 +1,8 @@
-﻿//Yo!Simo, scusa se l'ho fatto solo ora ma in sti giorni sono stato pieno ahahh
+﻿
+
+//Questo è un ibrido tra le due cose, cioè utilizza alcuni Unauthorized e BadRequest. Mentre per non 
+// serializzare i dati quando li invio non uso ok() ma reinderizzo e basta che in teoria aprendo poi li strumenti con F12
+// mi dovrebbe far vedere che il codice è 200
 
 
 using Microsoft.AspNetCore.Authentication;
@@ -10,11 +14,9 @@ using ProgettoTSWI.Data;
 using ProgettoTSWI.Models;
 using System.Diagnostics;
 using System.Security.Claims;
-using System.Security.Principal;
 
 namespace ProgettoTSWI.Controllers
 {
-
     public class HomeController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -35,14 +37,13 @@ namespace ProgettoTSWI.Controllers
             return View();
         }
 
-
-        [Authorize(Roles = "Admin")] // Solo per admin
+        [Authorize(Roles = "Admin")]
         public IActionResult Admin()
         {
             return View();
         }
 
-        [Authorize(Roles = "User")] // Solo per user
+        [Authorize(Roles = "User")]
         public IActionResult AfterLog()
         {
             return View();
@@ -52,73 +53,54 @@ namespace ProgettoTSWI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string Email, string Password)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == Email);
-
-                if (user != null)
-                {
-                    // Verifica la password con BCrypt
-                    if (BCrypt.Net.BCrypt.Verify(Password, user.Password))
-                    {
-                        // Login riuscito
-                        var claims = new List<Claim>
-                        {
-                            new Claim(ClaimTypes.Role, user.Ruolo),
-                            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                            new Claim(ClaimTypes.Name, user.Name),
-                            new Claim(ClaimTypes.Email, user.Email)
-                            //di questo non sono del tutto sicuro perchè io non uso
-                            //nel database e nel controller in tipo Role ma semplicemente una stringa
-                            //new Claim(ClaimTypes.Role, user.Ruolo)
-                        };
-
-                        var claimsIdentity = new ClaimsIdentity(
-                            claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                        var principal = new ClaimsPrincipal(claimsIdentity);
-
-                        await HttpContext.SignInAsync(
-                            CookieAuthenticationDefaults.AuthenticationScheme,
-                            new ClaimsPrincipal(principal));
-
-                        // reindirizzamento basato sul ruolo
-                        if (user.Ruolo == "Admin")
-                        {
-                            return RedirectToAction("Admin", "Home");
-                        }
-                        else //si assume che se un utente non � admin � per forza user
-                        {
-                            //Qui poi a livello teorico lo rimando sulla pagina degli eventi passando l'id
-                            return RedirectToAction("Index", "Event");
-                        }
-                    }
-                }
+                return BadRequest("Modello non valido.");
             }
 
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == Email);
 
+            if (user == null || !BCrypt.Net.BCrypt.Verify(Password, user.Password))
+            {
+                return Unauthorized("Credenziali non valide.");
+            }
 
-            return RedirectToAction("Index", "Home"); //se fallisco il login vengo reindirizzato alla pagina di login
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Role, user.Ruolo),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Name),
+                new Claim(ClaimTypes.Email, user.Email)
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(claimsIdentity);
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+            // Redirect basato sul ruolo
+            if (user.Ruolo == "Admin")
+                return RedirectToAction("Admin", "Home");
+
+            return RedirectToAction("Index", "Event");
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            // Questo elimina il cookie e tutti i claims dell'utente
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-            // Redirect alla home o alla pagina di login
             return RedirectToAction("Index", "Home");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            });
         }
     }
-
 }
 
