@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 
 namespace ProgettoTSWI.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class DeleteUsersController : Controller
     {
         private readonly ApplicationDbContext _context;

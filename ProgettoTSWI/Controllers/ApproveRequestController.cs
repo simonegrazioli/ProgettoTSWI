@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ProgettoTSWI.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ApproveRequestController : Controller
     {
         private readonly ApplicationDbContext _context;

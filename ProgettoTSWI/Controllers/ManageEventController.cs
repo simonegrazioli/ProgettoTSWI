@@ -7,8 +7,10 @@ using ProgettoTSWI.Models;
 using System.Linq.Expressions;
 using System.Security.Claims;
 
+
 namespace ProgettoTSWI.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ManageEventController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -130,7 +132,7 @@ namespace ProgettoTSWI.Controllers
                 return View("../AdminPages/UpdateEvent", eventToUpdate);
             }catch(Exception ex)
             {
-                TempData["ErrorMessage"] = "Si è verificato un errore in ";
+                TempData["ErrorMessage"] = "Si è verificato un errore nel recuperare l'evento selezionato per la modifica";
             }
             return View("../Home/Admin");
         }
