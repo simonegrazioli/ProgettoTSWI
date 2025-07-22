@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using ProgettoTSWI.Data;
 //using System.Data.Entity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 namespace ProgettoTSWI.Controllers
 {
     [Authorize(Roles = "Admin")]
@@ -42,5 +44,18 @@ namespace ProgettoTSWI.Controllers
 
             return View("../AdminPages/ManageEvents", confirmedEvents);
         }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            // Questo elimina il cookie e tutti i claims dell'utente
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Redirect alla home o alla pagina di login
+            return RedirectToAction("Index", "Home");
+        }
+
     }
 }

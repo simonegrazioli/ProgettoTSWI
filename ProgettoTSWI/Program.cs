@@ -13,6 +13,15 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options =>
     {
         options.Cookie.Name = "TempAuthCookie";
+        //indica dove deve essere reindirizzato l'utente se prova ad andare su una pagina dove
+        //dovrebbe essere loggato senza esserlo: 
+        // UserLogin è il nome del contreller se è dvisero allora bisogna cambiarlo!!
+
+        //options.LoginPath = "/UserLogin/Login";
+
+        //se invece non ha i permessi giusti viene mandato qui
+        //options.AccessDeniedPath = "/Home/AccessDenied";
+
         options.LoginPath = "/Home/Index";
         options.AccessDeniedPath = "/Home/Index"; //se accesso negato reindirizzo a index per effettuare l'accesso
     });
