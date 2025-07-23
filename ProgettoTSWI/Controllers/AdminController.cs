@@ -26,7 +26,7 @@ namespace ProgettoTSWI.Controllers
         {
             var client = _httpClientFactory.CreateClient();
             var response = await client.GetAsync("https://localhost:7087/api/AdminAPI/unapproved");
-            Console.WriteLine($"StatusCode: {response.StatusCode}");
+            //Console.WriteLine($"StatusCode: {response.StatusCode}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -34,39 +34,66 @@ namespace ProgettoTSWI.Controllers
             }
 
             var json = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(json);
+            //Console.WriteLine(json);
             var unapprovedEvents = JsonConvert.DeserializeObject<List<Event>>(json);
 
             return View("../AdminPages/ApproveRequests", unapprovedEvents);
         }
-        //public AdminController(ApplicationDbContext context)
-        //{
-        //    _context = context;
-        //}
-        //public async Task<IActionResult> ApproveRequests() {
 
-        //    var  proposedEvents =await _context.Events.Where(e => e.IsApproved == false).ToListAsync();
+        public async Task<IActionResult> DeleteReviews()
+        {
+            //var reviews = await _context.Participations.Where(p => p.ParticipationReview != "").ToListAsync();
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync("https://localhost:7087/api/AdminAPI/reviews");
+            //Console.WriteLine($"StatusCode: {response.StatusCode}");
 
-        //    return View("../AdminPages/ApproveRequests", proposedEvents);
-        //}
+            if (!response.IsSuccessStatusCode)
+            {
+                return View("Error");
+            }
 
-        
+            var json = await response.Content.ReadAsStringAsync();
+            //Console.WriteLine(json);
+            var reviews = JsonConvert.DeserializeObject<List<Participation>>(json);
 
+            return View("../AdminPages/DeleteReviews", reviews);
+        }
 
-        //public async Task<IActionResult> DeleteReviews(){
-        //    var reviews = await _context.Participations.Where(p => p.ParticipationReview != "").ToListAsync();
+        public async Task<IActionResult> DeleteUsers()
+        {
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync("https://localhost:7087/api/AdminAPI/users");
+            //Console.WriteLine($"StatusCode: {response.StatusCode}");
 
+            if (!response.IsSuccessStatusCode)
+            {
+                return View("Error");
+            }
 
-        //    return View("../AdminPages/DeleteReviews", reviews);
-        //}
+            var json = await response.Content.ReadAsStringAsync();
+            //Console.WriteLine(json);
+            var users = JsonConvert.DeserializeObject<List<User>>(json);
 
-        //public async Task<IActionResult> DeleteUsers()
-        //{
-        //    var users =await  _context.Users.Where(u => u.Ruolo == "User").ToListAsync();
+            return View("../AdminPages/DeleteUsers", users);
+        }
 
+        public async Task<IActionResult> ManageEvents()
+        {
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync("https://localhost:7087/api/AdminAPI/confirmedEvents");
+            //Console.WriteLine($"StatusCode: {response.StatusCode}");
 
-        //    return View("../AdminPages/DeleteUsers", users);
-        //}
+            if (!response.IsSuccessStatusCode)
+            {
+                return View("Error");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            //Console.WriteLine(json);
+            var confEvents = JsonConvert.DeserializeObject<List<Event>>(json);
+
+            return View("../AdminPages/ManageEvents", confEvents);
+        }
 
         //public async Task<IActionResult> ManageEvents() //passo la lista degli eventi confermati per i form di eliminazione e modifica
         //{

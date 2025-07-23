@@ -31,6 +31,30 @@ namespace ProgettoTSWI.Controllers
 
             return Ok(proposedEvents);
         }
+
+        [HttpGet("reviews")]
+        public async Task<IActionResult> GetReviews() { 
+            var allReviews= await _context.Participations.Where(p => p.ParticipationReview != "").ToListAsync();
+
+            return Ok(allReviews);
+
+        }
+
+        [HttpGet("users")]
+        public async Task<IActionResult> GetUsers()
+        {
+            var allUsers =await  _context.Users.Where(u => u.Ruolo == "User").ToListAsync();
+
+            return Ok(allUsers);
+        }
+
+        [HttpGet("confirmedEvents")]
+        public async Task<IActionResult> GetConfirmedEvents()
+        {
+            var confirmedEvents = await _context.Events.Where(e => e.IsApproved == true).ToListAsync();
+
+            return Ok(confirmedEvents);
+        }
     }
 
 
