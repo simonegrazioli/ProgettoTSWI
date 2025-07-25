@@ -3,6 +3,6 @@
     public class idActionRequest
     {
         public int[] idSelected { get; set; }
-        public string ActionType { get; set; } // "approve" o "refuse"
+        //public string ActionType { get; set; } // "approve" o "refuse"
     }
 }

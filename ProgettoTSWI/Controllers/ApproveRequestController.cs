@@ -6,6 +6,7 @@ using ProgettoTSWI.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Text;
+using System.Net.Http.Json;
 
 namespace ProgettoTSWI.Controllers
 {   
@@ -46,7 +47,6 @@ namespace ProgettoTSWI.Controllers
             var requestBody = new idActionRequest
             {
                 idSelected = selectedRequests,
-                ActionType = actionType
             };
 
             var jsonContent = new StringContent(
@@ -55,7 +55,45 @@ namespace ProgettoTSWI.Controllers
                 "application/json"
             );//metto le info da passare alla richiesta nel body in formato json
 
-            var response = await client.PostAsync("https://localhost:7087/api/ApproveRequestAPI/confirmrefuse", jsonContent);
+
+            HttpResponseMessage response;
+
+            if (actionType == "approve")
+            {
+                //var request = new HttpRequestMessage
+                //{
+                //    Method = HttpMethod.Post,
+                //    RequestUri = new Uri("https://localhost:7087/api/ApproveRequestAPI/confirm"),
+                //    Content = jsonContent // StringContent con JSON
+                //};
+
+                //response = await client.SendAsync(request);
+
+                response = await client.PostAsync("https://localhost:7087/api/ApproveRequestAPI/confirm", jsonContent);
+
+            }
+            else if (actionType == "refuse")
+            {
+                var request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri("https://localhost:7087/api/ApproveRequestAPI/refuse"),
+                    Content = jsonContent // StringContent con JSON
+                };
+
+                response = await client.SendAsync(request);
+
+
+                //response = await client.PostAsync("https://localhost:7087/api/ApproveRequestAPI/refuse", jsonContent);
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Richiesta non valida";
+
+                return View("../Home/Admin");
+            }
+
+
 
             if (response.IsSuccessStatusCode)
             {
@@ -65,7 +103,7 @@ namespace ProgettoTSWI.Controllers
             }
             else
             {
-                TempData["ErrorMessage"] = "Errore durante l'approvazione/rifiuto degli eventi.";
+                TempData["ErrorMessage"] = response.StatusCode;
             }
 
             return View("../Home/Admin");
