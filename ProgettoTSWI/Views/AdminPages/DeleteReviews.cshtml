@@ -8,7 +8,10 @@
     <h1>Delete Reviews</h1>
     <p>Seleziona le recensioni che vuoi eliminare e conferma con il tasto "Elimina Selezionati"</p>
 </div>
-
+@if (Model == null || Model.Count() == 0)
+{
+    <div class="alert alert-warning">No reviews available</div>
+}
 <form asp-action="DeleteReview" asp-controller="DeleteReview" method="post">
     <div class="row">
         @for (int i = 0; i < Model.Count; i++)

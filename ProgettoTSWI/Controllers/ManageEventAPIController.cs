@@ -33,6 +33,7 @@ namespace ProgettoTSWI.Controllers
     
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "Admin")]
     public class ManageEventAPIController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -41,74 +42,6 @@ namespace ProgettoTSWI.Controllers
         {
             _context = context;
         }
-
-        //[HttpPost("insert")]
-        //[Authorize(Roles = "Admin")]
-        //public async Task<IActionResult> InsertEvent([FromBody] EventJson nEvent)
-        //{
-        //    try
-        //    {
-        //        // Recupera l'ID organizzatore dall'utente autenticato
-        //        var organizerIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        //        if (string.IsNullOrEmpty(organizerIdClaim))
-        //        {
-        //            return Unauthorized(new { message = "ID organizzatore non trovato nell'utente autenticato." });
-        //        }
-
-        //        // Provo a convertire in int l'ID organizzatore
-        //        if (!int.TryParse(organizerIdClaim, out int organizerId))
-        //        {
-        //            return BadRequest(new { message = $"ID organizzatore non valido: {organizerIdClaim}" });
-        //        }
-
-        //        // Costruisco l'evento da salvare
-        //        var newEvent = new Event
-        //        {
-        //            EventName = nEvent.EventName,
-        //            EventDate = nEvent.EventDate,
-        //            EventPrice = nEvent.EventPrice,
-        //            EventLocation = nEvent.EventLocation,
-        //            OrganizerId = organizerId,
-        //            IsApproved = true
-        //        };
-
-        //        // Aggiungo l'evento al contesto e salvo
-        //        await _context.Events.AddAsync(newEvent);
-        //        await _context.SaveChangesAsync();
-
-        //        return Ok(new { message = "Evento inserito con successo." });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Logga l'eccezione (se hai un logger) o almeno la stampi per debugging
-        //        // _logger.LogError(ex, "Errore durante l'inserimento evento");
-
-        //        return StatusCode(500, new { message = "Errore interno durante l'inserimento dell'evento." });
-        //    }
-        //}
-
-
-
-
-        //[HttpPost("insertEv")]
-        //[Authorize(Roles = "Admin")]
-        //public async Task<IActionResult> InsertEvent([FromBody] Event newEvent)
-        //{
-
-        //    try
-        //    {
-        //        await _context.Events.AddAsync(newEvent); //aggiungo l'evento
-        //        await _context.SaveChangesAsync(); //salvo i cambiamenti
-
-        //        return Ok(new { message = "Evento inserito con successo." });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("Errore durante inserimento: " + ex.Message);
-        //        return StatusCode(500, new { message = ex.Message });
-        //    }
-        //}
 
         [HttpPost("insert")]
         public async Task<IActionResult> InsertEvent([FromBody] EventJson newEventJson)
@@ -144,7 +77,6 @@ namespace ProgettoTSWI.Controllers
 
 
         [HttpDelete("delete")]
-        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteEvent([FromBody] idActionRequest request)
         {
             if (request.idSelected == null || request.idSelected.Length == 0)
@@ -176,6 +108,50 @@ namespace ProgettoTSWI.Controllers
             }
         }
 
+        [HttpPost("preEdit")]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> PreEditEvent([FromBody] int eventToUp)
+        {
+            try
+            {
+                var eventToUpdate = await _context.Events
+                    .FirstOrDefaultAsync(e => e.EventId == eventToUp);
+
+                if (eventToUpdate == null)
+                    return NotFound(new { message = "Evento non trovato." });
+
+                return Ok(eventToUpdate);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Errore interno nel recupero dell'evento.", details = ex.Message });
+            }
+        }
+
+        [HttpPut("update")]
+        public async Task<IActionResult> EditEvent([FromBody] EventJson eventUpdated)
+        {
+            try
+            {
+                var existingEvent = await _context.Events.FindAsync(eventUpdated.EventId);
+                if (existingEvent == null)
+                    return NotFound(new { message = "Evento non trovato" });
+
+                existingEvent.EventName = eventUpdated.EventName;
+                existingEvent.EventDate = eventUpdated.EventDate;
+                existingEvent.EventLocation = eventUpdated.EventLocation;
+                existingEvent.EventPrice = eventUpdated.EventPrice;
+
+                _context.Events.Update(existingEvent);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Evento aggiornato con successo" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Errore durante l'update", details = ex.Message });
+            }
+        }
     }
 }
 

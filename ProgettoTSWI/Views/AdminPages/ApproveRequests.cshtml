@@ -9,6 +9,10 @@
     <p>Seleziona gli eventi che vuoi approvare, quindi con il tasto "Approve selected" lo stato degli eventi andrà a "Confirmed"</p>
 </div>
 
+@if (Model == null || Model.Count() == 0)
+{
+    <div class="alert alert-warning">No request available</div>
+}
 
 <form asp-action="ConfirmRefuseRequest" asp-controller="ApproveRequest" method="post">
 

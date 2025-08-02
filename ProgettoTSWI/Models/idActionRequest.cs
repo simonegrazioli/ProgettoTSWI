@@ -4,5 +4,6 @@
     {
         public int[] idSelected { get; set; }
         //public string ActionType { get; set; } // "approve" o "refuse"
+        public int? AdminId { get; set; }
     }
 }

@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient();
 
-
+//builder.Services.AddHttpContextAccessor(); 
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -51,12 +51,15 @@ var app = builder.Build();
 //ripulisco i cookie all'avvio in modo che il browser se li tiene in cache non crea problemi
 app.Use(async (context, next) =>
 {
-    // Verifica se è una nuova sessione o mancano cookie
-    if (!context.Request.Cookies.ContainsKey("TempAuthCookie") ||
-        context.Request.Path == "/Home/Index")
+    if (!context.Request.Path.StartsWithSegments("/api"))
     {
-        await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        context.Response.Headers["Cache-Control"] = "no-cache, no-store";
+        // Verifica se è una nuova sessione o mancano cookie
+        if (!context.Request.Cookies.ContainsKey("TempAuthCookie") ||
+            context.Request.Path == "/Home/Index")
+        {
+            await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            context.Response.Headers["Cache-Control"] = "no-cache, no-store";
+        }
     }
     await next();
 });

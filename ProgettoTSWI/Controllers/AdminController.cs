@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using ProgettoTSWI.Models;
 using Newtonsoft.Json;
+using System.Net;
 
 
 namespace ProgettoTSWI.Controllers
@@ -24,7 +25,22 @@ namespace ProgettoTSWI.Controllers
         }
         public async Task<IActionResult> ApproveRequests()
         {
-            var client = _httpClientFactory.CreateClient();
+            //var client = _httpClientFactory.CreateClient();
+
+            var clientHandler = new HttpClientHandler();
+            var cookieContainer = new CookieContainer();
+
+            // Prendi il cookie di autenticazione attuale
+            if (Request.Cookies.TryGetValue("TempAuthCookie", out var authCookieValue))
+            {
+                cookieContainer.Add(new Uri("https://localhost:7087"), new Cookie("TempAuthCookie", authCookieValue));
+            }
+
+            clientHandler.CookieContainer = cookieContainer;
+
+            var client = new HttpClient(clientHandler);
+
+
             var response = await client.GetAsync("https://localhost:7087/api/AdminAPI/unapproved");
             //Console.WriteLine($"StatusCode: {response.StatusCode}");
 
@@ -43,7 +59,23 @@ namespace ProgettoTSWI.Controllers
         public async Task<IActionResult> DeleteReviews()
         {
             //var reviews = await _context.Participations.Where(p => p.ParticipationReview != "").ToListAsync();
-            var client = _httpClientFactory.CreateClient();
+            //var client = _httpClientFactory.CreateClient();
+
+            var clientHandler = new HttpClientHandler();
+            var cookieContainer = new CookieContainer();
+
+            // Prendi il cookie di autenticazione attuale
+            if (Request.Cookies.TryGetValue("TempAuthCookie", out var authCookieValue))
+            {
+                cookieContainer.Add(new Uri("https://localhost:7087"), new Cookie("TempAuthCookie", authCookieValue));
+            }
+
+            clientHandler.CookieContainer = cookieContainer;
+
+            var client = new HttpClient(clientHandler);
+
+
+
             var response = await client.GetAsync("https://localhost:7087/api/AdminAPI/reviews");
             //Console.WriteLine($"StatusCode: {response.StatusCode}");
 
@@ -61,7 +93,22 @@ namespace ProgettoTSWI.Controllers
 
         public async Task<IActionResult> DeleteUsers()
         {
-            var client = _httpClientFactory.CreateClient();
+            //var client = _httpClientFactory.CreateClient();
+
+
+            var clientHandler = new HttpClientHandler();
+            var cookieContainer = new CookieContainer();
+
+            // Prendi il cookie di autenticazione attuale
+            if (Request.Cookies.TryGetValue("TempAuthCookie", out var authCookieValue))
+            {
+                cookieContainer.Add(new Uri("https://localhost:7087"), new Cookie("TempAuthCookie", authCookieValue));
+            }
+
+            clientHandler.CookieContainer = cookieContainer;
+
+            var client = new HttpClient(clientHandler);
+
             var response = await client.GetAsync("https://localhost:7087/api/AdminAPI/users");
             //Console.WriteLine($"StatusCode: {response.StatusCode}");
 
@@ -79,7 +126,23 @@ namespace ProgettoTSWI.Controllers
 
         public async Task<IActionResult> ManageEvents()
         {
-            var client = _httpClientFactory.CreateClient();
+            //var client = _httpClientFactory.CreateClient();
+
+            var clientHandler = new HttpClientHandler();
+            var cookieContainer = new CookieContainer();
+
+            // Prendi il cookie di autenticazione attuale
+            if (Request.Cookies.TryGetValue("TempAuthCookie", out var authCookieValue))
+            {
+                cookieContainer.Add(new Uri("https://localhost:7087"), new Cookie("TempAuthCookie", authCookieValue));
+            }
+
+            clientHandler.CookieContainer = cookieContainer;
+
+            var client = new HttpClient(clientHandler);
+
+
+
             var response = await client.GetAsync("https://localhost:7087/api/AdminAPI/confirmedEvents");
             //Console.WriteLine($"StatusCode: {response.StatusCode}");
 
@@ -103,16 +166,16 @@ namespace ProgettoTSWI.Controllers
         //}
 
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Logout()
-        //{
-        //    // Questo elimina il cookie e tutti i claims dell'utente
-        //    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            // Questo elimina il cookie e tutti i claims dell'utente
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-        //    // Redirect alla home o alla pagina di login
-        //    return RedirectToAction("Index", "Home");
-        //}
+            // Redirect alla home o alla pagina di login
+            return RedirectToAction("Index", "Home");
+        }
 
     }
 }

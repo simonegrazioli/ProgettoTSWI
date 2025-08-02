@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using ProgettoTSWI.Data;
 using ProgettoTSWI.Models;
 using System.Linq.Expressions;
+using System.Net;
 using System.Text;
 
 
@@ -43,7 +44,22 @@ namespace ProgettoTSWI.Controllers
                 TempData["ErrorMessage"] = "Nessuna reviews selezionata";
                 return View("../Home/Admin");
             }
-            var client = _httpClientFactory.CreateClient();
+            var clientHandler = new HttpClientHandler();
+            var cookieContainer = new CookieContainer();
+
+            // Prendi il cookie di autenticazione attuale
+            if (Request.Cookies.TryGetValue("TempAuthCookie", out var authCookieValue))
+            {
+                cookieContainer.Add(new Uri("https://localhost:7087"), new Cookie("TempAuthCookie", authCookieValue));
+            }
+
+            clientHandler.CookieContainer = cookieContainer;
+
+            var client = new HttpClient(clientHandler);
+
+
+
+            //var client = _httpClientFactory.CreateClient();
             
             var requestBody = new idActionRequest
             {

@@ -2,12 +2,15 @@
 using ProgettoTSWI.Data;
 using Microsoft.EntityFrameworkCore;
 using ProgettoTSWI.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ProgettoTSWI.Controllers
 {
 
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "Admin")]
+
     public class DeleteReviewsAPIController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

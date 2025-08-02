@@ -12,6 +12,7 @@ namespace ProgettoTSWI.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "Admin")]
     public class AdminAPIController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -34,7 +35,7 @@ namespace ProgettoTSWI.Controllers
 
         [HttpGet("reviews")]
         public async Task<IActionResult> GetReviews() { 
-            var allReviews= await _context.Participations.Where(p => p.ParticipationReview != "").ToListAsync();
+            var allReviews= await _context.Participations.Where(p => !string.IsNullOrEmpty(p.ParticipationReview)).ToListAsync();
 
             return Ok(allReviews);
 

@@ -6,7 +6,9 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using ProgettoTSWI.Data;
 using ProgettoTSWI.Models;
+using System.Data.Entity;
 using System.Linq.Expressions;
+using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
@@ -47,6 +49,21 @@ namespace ProgettoTSWI.Controllers
         {
             try
             {
+                var clientHandler = new HttpClientHandler();
+                var cookieContainer = new CookieContainer();
+
+                // Prendi il cookie di autenticazione attuale
+                if (Request.Cookies.TryGetValue("TempAuthCookie", out var authCookieValue))
+                {
+                    cookieContainer.Add(new Uri("https://localhost:7087"), new Cookie("TempAuthCookie", authCookieValue));
+                }
+
+                clientHandler.CookieContainer = cookieContainer;
+
+                var client = new HttpClient(clientHandler);
+
+
+
                 var organizerIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 if (!string.IsNullOrEmpty(organizerIdClaim) && int.TryParse(organizerIdClaim, out int organizerId))
@@ -62,7 +79,7 @@ namespace ProgettoTSWI.Controllers
                         IsApproved = true
                     };
 
-                    var client = _httpClientFactory.CreateClient();
+                    //var client = _httpClientFactory.CreateClient();
                     var json = JsonConvert.SerializeObject(newEventJson);
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -99,7 +116,20 @@ namespace ProgettoTSWI.Controllers
 
             try
             {
-                var client = _httpClientFactory.CreateClient();
+
+                var clientHandler = new HttpClientHandler();
+                var cookieContainer = new CookieContainer();
+
+                // Prendi il cookie di autenticazione attuale
+                if (Request.Cookies.TryGetValue("TempAuthCookie", out var authCookieValue))
+                {
+                    cookieContainer.Add(new Uri("https://localhost:7087"), new Cookie("TempAuthCookie", authCookieValue));
+                }
+
+                clientHandler.CookieContainer = cookieContainer;
+
+                var client = new HttpClient(clientHandler);
+
 
                 var requestBody = new idActionRequest
                 {
@@ -143,6 +173,108 @@ namespace ProgettoTSWI.Controllers
 
             return RedirectToAction("Admin", "Home");
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> PreEditEvent(EventJson eventToUp)
+        {
+            try
+            {
+                var clientHandler = new HttpClientHandler();
+                var cookieContainer = new CookieContainer();
+
+                // Prendi il cookie di autenticazione attuale
+                if (Request.Cookies.TryGetValue("TempAuthCookie", out var authCookieValue))
+                {
+                    cookieContainer.Add(new Uri("https://localhost:7087"), new Cookie("TempAuthCookie", authCookieValue));
+                }
+
+                clientHandler.CookieContainer = cookieContainer;
+
+                var client = new HttpClient(clientHandler);
+
+
+                //var client = _httpClientFactory.CreateClient();
+
+                var json = JsonConvert.SerializeObject(eventToUp.EventId);
+                Console.WriteLine(json);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await client.PostAsync("https://localhost:7087/api/ManageEventAPI/preEdit", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseBody = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine("📥 JSON ricevuto: " + responseBody);
+                    var eventData = JsonConvert.DeserializeObject<Event>(responseBody);
+
+                    return View("../AdminPages/UpdateEvent", eventData);
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine("Errore API:\n" + errorContent);
+                    TempData["ErrorMessage"] = "Evento non trovato o errore nell'API.";
+                }
+
+
+                TempData["ErrorMessage"] = "Evento non trovato o errore nell'API.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Errore durante la chiamata all'API."+ex.Message;
+            }
+
+            return RedirectToAction("Admin", "Home");
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> EditEvent(Event eventUpdated)
+        {
+            try
+            {
+
+                var clientHandler = new HttpClientHandler();
+                var cookieContainer = new CookieContainer();
+
+                // Prendi il cookie di autenticazione attuale
+                if (Request.Cookies.TryGetValue("TempAuthCookie", out var authCookieValue))
+                {
+                    cookieContainer.Add(new Uri("https://localhost:7087"), new Cookie("TempAuthCookie", authCookieValue));
+                }
+
+                clientHandler.CookieContainer = cookieContainer;
+
+                var client = new HttpClient(clientHandler);
+
+
+
+                //var client = _httpClientFactory.CreateClient();
+                var json = JsonConvert.SerializeObject(eventUpdated);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await client.PutAsync("https://localhost:7087/api/ManageEventAPI/update", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["SuccessMessage"] = "Update effettuato con successo!";
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    TempData["ErrorMessage"] = $"Errore durante l'update: {error}";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Errore durante la chiamata all'API: {ex.Message}";
+            }
+
+            return View("../Home/Admin");
+        }
+
+
 
     }
 
