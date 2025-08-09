@@ -1,0 +1,94 @@
+﻿@model ModifyUser
+
+<style>
+    :root {
+        --primary: #7fffd4; /* Colore primario aggiornato */
+        --secondary: #000000;
+        --accent: #FFFFFF;
+        --text: #F1F1F1;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+    }
+
+    body {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7));
+      
+        background-size: cover;
+    }
+
+    .form-container {
+        background-color: rgba(30, 30, 30, 0.9);
+        padding: 2rem;
+        border: 1px solid #333;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-control {
+        background-color: #111;
+        border: 1px solid #333;
+        color: var(--text);
+        border-radius: 0;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(127, 255, 212, 0.25);
+    }
+
+    .form-label {
+        color: var(--accent);
+        font-weight: 500;
+    }
+
+</style>
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">@TempData["Message"]</div>
+}
+
+<div class="container mt-4">
+    <h2>Modifica Profilo Utente</h2>
+    <form asp-controller="User" asp-action="Edit" method="post">
+        
+        <div class="form-group">
+            <label asp-for="Name">Nome</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        
+        <div class="form-group">
+            <label asp-for="Surname">Cognome</label>
+            <input asp-for="Surname" class="form-control" />
+            <span asp-validation-for="Surname" class="text-danger"></span>
+        </div>
+        
+        <div class="form-group">
+            <label asp-for="Aka">Nickname</label>
+            <input asp-for="Aka" class="form-control" />
+            <span asp-validation-for="Aka" class="text-danger"></span>
+        </div>
+        
+        <div class="form-group">
+            <label asp-for="InstaProfile">Profilo Instagram</label>
+            <input asp-for="InstaProfile" class="form-control" />
+            <span asp-validation-for="InstaProfile" class="text-danger"></span>
+        </div>
+        
+        <div class="form-group">
+            <label asp-for="Email">Email</label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        
+        <div class="form-group">
+            <label asp-for="Password">Nuova Password</label>
+            <input asp-for="Password" type="password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        
+        
+        <button type="submit" class="btn btn-primary mt-3">Salva Modifiche</button>
+    </form>
+</div>

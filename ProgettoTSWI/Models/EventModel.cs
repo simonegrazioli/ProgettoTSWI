@@ -1,5 +1,6 @@
 ﻿using ProgettoTSWI.Models;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProgettoTSWI.Models
 { 
@@ -10,6 +11,9 @@ namespace ProgettoTSWI.Models
         [Required]
         [MaxLength(100)]
         public string EventName { get; set; }
+
+        [MaxLength(1000)] // Opzionale: limita la lunghezza
+        public string? Description { get; set; }
 
         [Required]
         public DateTime EventDate { get; set; }
@@ -23,12 +27,16 @@ namespace ProgettoTSWI.Models
         public bool IsApproved { get; set; } = false;
 
         public int OrganizerId { get; set; }
+
+        [NotMapped] // Questo attributo evita che EF provi a mappare questa proprietà al database
+        public bool UserPartecipa { get; set; }
+
         public virtual User Organizer { get; set; }
 
         // Relazione con Participation
         public virtual ICollection<Participation> Participations { get; set; }
 
-        
+
     }
 
 }

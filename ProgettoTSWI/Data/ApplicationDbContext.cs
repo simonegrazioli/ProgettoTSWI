@@ -6,13 +6,14 @@ namespace ProgettoTSWI.Data
 {
     public class ApplicationDbContext : DbContext
     {
-       
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+           : base(options)
+        {
+        }
         public DbSet<User> Users { get; set; }
+        
         public DbSet<Event> Events { get; set; }
         public DbSet<Participation> Participations { get; set; }
-
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -38,6 +39,7 @@ namespace ProgettoTSWI.Data
 
 
         }
+        
     }
 }
 //cd C:\Users\admin\source\repos\ProgettoTSWI_\ProgettoTSWI

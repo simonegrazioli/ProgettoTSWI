@@ -28,13 +28,12 @@ namespace ProgettoTSWI.Models
         [Required]
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Le password non corrispondono")]
-        [NotMapped] // Questo fa sì che EF lo ignori
-        public string ConfermaPassword { get; set; }
+        [NotMapped]
+        public string ConfermaPassword { get; set; } = string.Empty; // Inizializza
 
         [Required] // Aggiungi Required se vuoi essere certo che non sia null
         public string Ruolo { get; set; } = "User";
 
-        // Inizializza le collezioni per evitare problemi con EF
         public virtual ICollection<Participation> Participations { get; set; } = new List<Participation>();
 
         public virtual ICollection<Event> OrganizedEvents { get; set; } = new List<Event>();

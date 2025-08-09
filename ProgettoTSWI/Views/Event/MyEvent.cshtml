@@ -1,14 +1,13 @@
-﻿<!-- REVIEW FORM -->
-@model ReviewModel
+﻿<!-- MY EVENTS PAGE -->
+@model List<Event>
 @{
-    ViewData["Title"] = "Scrivi Recensione";
+    ViewData["Title"] = "I Miei Eventi";
 }
 
 <style>
-   
+    
     body {
-        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7));
-                    
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7));            
         background-size: cover;
     }
 
@@ -161,25 +160,50 @@
 </style>
 
 <div class="container py-5">
-    <div class="form-container">
-        <h1 class="mb-4">Scrivi la tua recensione per <span class="text-primary">@Model.EventName</span></h1>
+    <h1 class="mb-4">Eventi Proposti da te</h1>
 
-        <form asp-controller="Event" asp-action="SubmitReview" method="post">
-            @Html.AntiForgeryToken()
-            
-            <input type="hidden" asp-for="EventId" />
-            <input type="hidden" asp-for="EventName" />
-            
-            <div class="form-group mb-4">
-                <label asp-for="Comment" class="form-label">La tua recensione</label>
-                <textarea asp-for="Comment" class="form-control" rows="5" placeholder="Condividi la tua esperienza..."></textarea>
-                <span asp-validation-for="Comment" class="text-danger"></span>
-            </div>
-            
-            <button type="submit" class="btn btn-primary btn-lg w-100">
-                <i class="fas fa-paper-plane me-2"></i>Salva Recensione
-            </button>
-        </form>
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-info mb-4">@TempData["Message"]</div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>Non hai ancora proposto eventi.
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var evento in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card event-card @(evento.IsApproved ? "border-success" : "border-warning")">
+                        <div class="card-body">
+                            <h5 class="card-title">@evento.EventName</h5>
+                            <p class="card-text price-tag">
+                                @(evento.EventPrice?.ToString("C") ?? "Gratis")
+                            </p>
+                            <p class="card-text text-muted">
+                                <small>
+                                    <i class="far fa-calendar-alt me-2"></i>@evento.EventDate.ToString("d")<br>
+                                    <i class="fas fa-map-marker-alt me-2"></i>@evento.EventLocation
+                                </small>
+                            </p>
+                            <span class="status-badge badge @(evento.IsApproved ? "bg-success" : "bg-warning")">
+                                @(evento.IsApproved ? "Approvato" : "In revisione")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="text-center mt-4">
+        <a asp-controller="Event" asp-action="CreateForm" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus-circle me-2"></i>Proponi un nuovo evento
+        </a>
     </div>
-</div>
 </div>

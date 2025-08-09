@@ -1,177 +1,360 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ProgettoTSWI.Data;
 using ProgettoTSWI.Models;
+using System;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Reflection;
 using System.Security.Claims;
+using System.Text.Json;
+
 
 namespace ProgettoTSWI.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
+    [Route("Event/[action]")]
     public class EventController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public EventController(ApplicationDbContext context)
+        public EventController(IHttpClientFactory httpClientFactory)
         {
-            _context = context;
+            _httpClientFactory = httpClientFactory;
         }
 
-        
-        // Mostra solo gli eventi approvati
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var approvedEvents = await _context.Events
-                .Where(e => e.IsApproved)
-                .Include(e => e.Organizer)
-                .Include(e => e.Participations) 
-                .ToListAsync();
-
-            return View(approvedEvents);
-        }
-
-
-        // POST: /Event/Join - Partecipa all'evento (senza aprire pagina)
-        [HttpPost]
-        [Authorize] // solo utenti loggati
-        public async Task<IActionResult> Join(int id)
-        {
-            // Recupero ID utente loggato
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userIdClaim == null) return Unauthorized();
-
-            int userId = int.Parse(userIdClaim);
-
-            // Evita doppie partecipazioni, dovrei poterlo togliere!
-            bool alreadyJoined = await _context.Participations
-                .AnyAsync(p => p.ParticipationEventId == id && p.ParticipationUserId == userId);
-            if (!alreadyJoined)
+            try
             {
-                var participation = new Participation
+                var client = _httpClientFactory.CreateClient();
+                var response = await client.GetAsync("https://localhost:7087/api/Api/events");
+
+                if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    ParticipationEventId = id,
-                    ParticipationUserId = userId
-                };
+                    TempData["Message"] = "Non è stato ancora approvato alcun evento";
+                    return View(new List<Event>());
+                }
 
-                _context.Participations.Add(participation);
-                await _context.SaveChangesAsync();
+                if (!response.IsSuccessStatusCode)
+                {
+                    TempData["Error"] = "Si è verificato un errore nel recupero degli eventi";
+                    return View("Error");
+                }
+
+                var events = await response.Content.ReadFromJsonAsync<List<Event>>() ?? new List<Event>();
+
+                // Ottieni l'ID utente corrente
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                // Se l'utente è loggato, verifica le partecipazioni
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    var partecipationsResponse = await client.GetAsync($"https://localhost:7087/api/Api/participations/user/{userId}");
+                    if (partecipationsResponse.IsSuccessStatusCode)
+                    {
+                        var partecipations = await partecipationsResponse.Content.ReadFromJsonAsync<List<Participation>>();
+
+                        // Aggiungi informazioni di partecipazione a ogni evento
+                        foreach (var e in events)
+                        {
+                            e.UserPartecipa = partecipations?.Any(p => p.ParticipationEventId == e.EventId) ?? false;
+                        }
+                    }
+                }
+
+                return View(events);
             }
-
-            return RedirectToAction("Index");
-        }
-
-
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Leave(int id)
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userIdClaim == null) return Unauthorized();
-
-            int userId = int.Parse(userIdClaim);
-
-            var participation = await _context.Participations
-                .FirstOrDefaultAsync(p => p.ParticipationEventId == id && p.ParticipationUserId == userId);
-
-            if (participation != null)
+            catch (Exception ex)
             {
-                _context.Participations.Remove(participation);
-                await _context.SaveChangesAsync();
+                TempData["Error"] = $"Errore: {ex.Message}";
+                return View("Error");
             }
-
-            return RedirectToAction("Index");
-        }
-
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> Review(int id)
-        {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
-            var participation = await _context.Participations
-                .FirstOrDefaultAsync(p => p.ParticipationEventId == id && p.ParticipationUserId == userId);
-
-            if (participation == null)
-                return Forbid(); // l'utente non ha partecipato
-
-            ViewBag.EventId = id;
-            ViewBag.ExistingReview = participation.ParticipationReview;
-
-            return View(); // carica Views/Event/Review.cshtml
-        }
-
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> SubmitReview(int id, string review)
-        {
-            if (string.IsNullOrWhiteSpace(review))
-            {
-                ViewBag.EventId = id;
-                ModelState.AddModelError("", "La recensione non può essere vuota.");
-                return View("Review");
-            }
-
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
-            var participation = await _context.Participations
-                .FirstOrDefaultAsync(p => p.ParticipationEventId == id && p.ParticipationUserId == userId);
-
-            if (participation == null)
-                return Forbid();
-
-            participation.ParticipationReview = review;
-            await _context.SaveChangesAsync();
-
-            TempData["Message"] = "Recensione salvata con successo!";
-            return RedirectToAction("Index");
         }
 
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Logout()
-        {
-            // Questo elimina il cookie e tutti i claims dell'utente
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-            // Redirect alla home o alla pagina di login
-            return RedirectToAction("Index", "Home");
-        }
 
         [Authorize]
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> MyEvent()
         {
-            return View();
+          
+            var client = _httpClientFactory.CreateClient();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            int id = int.Parse(userId);//in teoria con authorize non può essere nullo qui
+
+            var response = await client.GetAsync($"https://localhost:7087/api/Api/MyEvents?id={id}");
+            
+            if (!response.IsSuccessStatusCode)
+                return View("Error");
+            //li ritorna la lista di eventi organizzati o proposti da quell'utente 
+            var myEvents = await response.Content.ReadFromJsonAsync<List<Event>>() ?? new List<Event>();
+
+            // Aggiungi messaggio se non ci sono eventi
+            if (!myEvents.Any())
+            {
+                TempData["Message"] = "Non hai ancora proposto alcun evento.";
+            }
+
+            return View(myEvents);
         }
+
+        [HttpGet]
+        public IActionResult CreateForm()
+        {
+            return View(); // Passa un modello vuoto al form
+        }
+
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Create(EventFormViewModel model)
+        public async Task<IActionResult> Create(EventCreation model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            model.OrganizerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var evento = new Event
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.PostAsJsonAsync(
+                "https://localhost:7087/api/Api/createEvent",
+                model);
+
+            Console.WriteLine($"Status Code: {response.StatusCode}");
+
+            if (!response.IsSuccessStatusCode)
             {
-                EventName = model.EventName,
-                EventDate = model.EventDate,
-                EventLocation = model.EventLocation,
-                EventPrice = model.EventPrice,
-                OrganizerId = userId,
-                IsApproved = false
-            };
-
-            _context.Events.Add(evento);
-            await _context.SaveChangesAsync();
+                TempData["Message"] = "Ops, qualcosa è andato storto!";
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Errore API: {error}");
+                return RedirectToAction("CreateForm");
+            }
 
             TempData["Message"] = "Evento proposto con successo! Sarà visibile dopo approvazione.";
             return RedirectToAction("Index");
         }
 
+        [HttpGet("InfoEvent/{idEvent:int}")]
+        public async Task<IActionResult> InfoEvent(int idEvent)
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                var response = await client.GetAsync($"https://localhost:7087/api/Api/InfoEvent?idEvent={idEvent}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    
+                    return View("Error");
+                }
+
+                // Modificato per usare EventWithParticipants
+                var eventWithParticipants = await response.Content.ReadFromJsonAsync<EventWithParticipants>();
+
+                if (eventWithParticipants == null)
+                {
+                    TempData["Message"] = "Evento non trovato";
+                    return View(new EventWithParticipants
+                    {
+                        Event = new Event(),
+                        ParticipantsAka = new List<string>()
+                    });
+                }
+
+                return View(eventWithParticipants);
+            }
+            catch (Exception)
+            {
+                
+                return View("Error");
+            }
+        }
+
+        [HttpGet("ViewReviews/{eventId:int}")]
+        public async Task<IActionResult> ViewReviews(int eventId)
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                var response = await client.GetAsync($"https://localhost:7087/api/Api/GetEventReviews?eventId={eventId}");
+
+                if (!response.IsSuccessStatusCode)
+                    return RedirectToAction("InfoEvent", new { id = eventId });
+
+                var reviews = await response.Content.ReadFromJsonAsync<List<SeeReviewModel>>();
+                return View("EventReviews", reviews ?? new List<SeeReviewModel>());
+            }
+            catch
+            {
+                return RedirectToAction("InfoEvent", new { id = eventId });
+            }
+        }
 
 
+        [HttpGet("Review/{id:int}")] // Specifica esplicitamente il tipo del parametro
+        public async Task<IActionResult> Review(int id)
+        {
+            
+
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+
+                var response = await client.GetAsync($"https://localhost:7087/api/Api/events/{id}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"Errore API: {response.ReasonPhrase}");
+                    return RedirectToAction("Index");
+                }
+
+                var evento = await response.Content.ReadFromJsonAsync<Event>();
+               
+
+                return View(new ReviewModel
+                {
+                    EventId = id,
+                    EventName = evento?.EventName ?? "N/D"
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ECCEZIONE: {ex}");
+                throw; // Rilancia per vedere l'errore nella UI
+            }
+     
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Partecipa(int id)
+        {
+            try
+            {
+                // Ottieni l'ID utente dai claim
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    TempData["Message"] = "Utente non riconosciuto";
+                    return RedirectToAction("Index");
+                }
+
+                var client = _httpClientFactory.CreateClient();
+
+                var response = await client.PostAsJsonAsync(
+                    "https://localhost:7087/api/Api/participations/confirm", new
+                    {
+                        EventId = id,
+                        UserId = userId
+                    });
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Message"] = "Partecipazione registrata con successo!";
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    TempData["Message"] = "Errore durante la partecipazione: " + errorContent;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Errore: {ex}");
+                TempData["Message"] = "Errore durante l'operazione";
+            }
+
+            return RedirectToAction("Index");
+        }
+
+       
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+         public async Task<IActionResult> NonPartecipa(int eventId)
+        {
+            
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    TempData["Message"] = "Utente non riconosciuto";
+                    return RedirectToAction("Index");
+                }
+
+               
+                var client = _httpClientFactory.CreateClient();
+                var response = await client.PostAsJsonAsync(
+                    "https://localhost:7087/api/Api/participations/delete",
+                    new
+                    {
+                        EventId = eventId,
+                        UserId = userId
+                    });
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    TempData["Message"] = $"Errore API: {(int)response.StatusCode} - {errorContent}";
+                }
+                else
+                {
+                    TempData["Message"] = "Partecipazione rimossa con successo!";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Message"] = $"Errore: {ex.Message}";
+            }
+
+            return RedirectToAction("Index");
+        }
+
+
+        [HttpPost("SubmitReview")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitReview(ReviewModel model)
+        {
+            Console.WriteLine("nel secondo review");
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                // Aggiungi l'userId al modello
+                model.UserId = int.Parse(userId);
+
+                var response = await client.PutAsJsonAsync(
+                    "https://localhost:7087/api/Api/participations/review",
+                    model);
+
+               
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    TempData["SuccessMessage"] = "Recensione fallita!";
+                    return RedirectToAction("Index");
+                }
+               
+                TempData["SuccessMessage"] = "Recensione salvata con successo!";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Errore: {ex.Message}");
+                ModelState.AddModelError("", "Errore imprevisto");
+                return View(model);
+            }
+        }
     }
 }

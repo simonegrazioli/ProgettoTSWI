@@ -1,0 +1,96 @@
+﻿<!-- EVENT CREATION FORM -->
+@model EventCreation
+@{
+    ViewData["Title"] = "Proponi Evento";
+}
+
+<style>
+    :root {
+        --primary: #7fffd4; /* Colore primario aggiornato */
+        --secondary: #000000;
+        --accent: #FFFFFF;
+        --text: #F1F1F1;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+    }
+
+    body {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                    url('img/78722.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    .form-container {
+        background-color: rgba(30, 30, 30, 0.9);
+        padding: 2rem;
+        border: 1px solid #333;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-control {
+        background-color: #111;
+        border: 1px solid #333;
+        color: var(--text);
+        border-radius: 0;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(127, 255, 212, 0.25);
+    }
+
+    .form-label {
+        color: var(--accent);
+        font-weight: 500;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="form-container">
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-info mb-4">@TempData["Message"]</div>
+        }
+
+        <h1 class="mb-4">Proponi un nuovo evento</h1>
+
+        <form asp-controller="Event" asp-action="Create" method="post">
+            <div class="form-group mb-4">
+                <label asp-for="EventName" class="form-label">Nome Evento</label>
+                <input asp-for="EventName" class="form-control" />
+                <span asp-validation-for="EventName" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-4">
+                <label asp-for="EventDate" class="form-label">Data Evento</label>
+                <input asp-for="EventDate" type="datetime-local" class="form-control" />
+                <span asp-validation-for="EventDate" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-4">
+                <label asp-for="EventLocation" class="form-label">Luogo</label>
+                <input asp-for="EventLocation" class="form-control" />
+                <span asp-validation-for="EventLocation" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="EventPrice" class="form-label">Prezzo (€)</label>
+                <input asp-for="EventPrice" type="number" step="0.01" class="form-control" />
+                <span asp-validation-for="EventPrice" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-4">
+                <label asp-for="Description" class="form-label">Descrizione Evento (opzionale)</label>
+                <textarea asp-for="Description" class="form-control" rows="4" 
+                          placeholder="Inserisci una descrizione dell'evento..."></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100 mt-3">
+                <i class="fas fa-plus-circle me-2"></i>Proponi Evento
+            </button>
+        </form>
+    </div>
+</div>

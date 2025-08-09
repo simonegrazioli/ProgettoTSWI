@@ -16,10 +16,10 @@ namespace ProgettoTSWI.Models
         public int ParticipationUserId { get; set; }
         
 
-        // Navigation Properties
+         // Navigation Properties
         public virtual Event Event { get; set; }
         public virtual User User { get; set; }
-     
+
     }
 
 }

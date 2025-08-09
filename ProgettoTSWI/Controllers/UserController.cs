@@ -1,76 +1,76 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ProgettoTSWI.Data;
 using ProgettoTSWI.Models;
 using System.Security.Claims;
 
 namespace ProgettoTSWI.Controllers
 {
-    [Authorize]
     public class UserController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public UserController(ApplicationDbContext context)
+        public UserController(IHttpClientFactory httpClientFactory)
         {
-            _context = context;
+            _httpClientFactory = httpClientFactory;
         }
 
-        // GET: /User/Profile
-        public async Task<IActionResult> Profile()
+
+      
+        public async Task<IActionResult> Index()
         {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var client = _httpClientFactory.CreateClient();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            int id = int.Parse(userId);
+            var response = await client.GetAsync($"https://localhost:7087/api/Api/infoUser?id={id}");
 
-            var user = await _context.Users
-                .Include(u => u.Participations)
-                    .ThenInclude(p => p.Event)
-                .FirstOrDefaultAsync(u => u.Id == userId);
+            if (!response.IsSuccessStatusCode)
+                return View("Error");
 
-            if (user == null) return NotFound();
-
+            var user = await response.Content.ReadFromJsonAsync<User>();
             return View(user);
         }
 
-        // GET: /User/Edit
-        public async Task<IActionResult> Edit()
+        [HttpGet]
+        public IActionResult ModifyInfoUser()
         {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var user = await _context.Users.FindAsync(userId);
-            return View(user);
+            return View(); // Passa un modello vuoto al form
         }
 
-        // POST: /User/Edit
         [HttpPost]
-        public async Task<IActionResult> Edit(User updatedUser)
-        {
-            
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var user = await _context.Users.FindAsync(userId);
+        [Authorize]
+        public async Task<IActionResult> Edit(ModifyUser user) {
+            if (ModelState.IsValid)
+            {
+                var client = _httpClientFactory.CreateClient();
 
-            if (user == null) return NotFound();
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            //in questo modo permetto di aggiornare anche solo 1 campo su 4 
-            if (!string.IsNullOrWhiteSpace(updatedUser.Name))
-                user.Name = updatedUser.Name;
+                // Aggiungi l'userId al modello
+                user.Id = int.Parse(userId);
 
-            if (!string.IsNullOrWhiteSpace(updatedUser.Surname))
-                user.Surname = updatedUser.Surname;
+                Console.WriteLine("Prima");
+                var response = await client.PostAsJsonAsync(
+                   "https://localhost:7087/api/Api/EditUser", user);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    TempData["SuccessMessage"] = "Errore durante l'operazione!";
 
-            if (!string.IsNullOrWhiteSpace(updatedUser.Email))
-                user.Email = updatedUser.Email;
+                    return RedirectToAction("Index");
+                }
 
-            if (!string.IsNullOrWhiteSpace(updatedUser.Name))
-                user.Aka = updatedUser.Aka;
+                TempData["SuccessMessage"] = "Ora partecipi all'evento!";
+                return RedirectToAction("Index");
+            }
+            Console.WriteLine("model state non valido");
+            TempData["SuccessMessage"] = "Dati inseriti in modo scoretto";
+            return  RedirectToAction("Index");
 
-            if (!string.IsNullOrWhiteSpace(updatedUser.Email))
-                user.InstaProfile = updatedUser.InstaProfile;
 
-            
 
-            await _context.SaveChangesAsync();
-            TempData["Message"] = "Dati aggiornati correttamente!";
-            return RedirectToAction("Profile");
+
+
         }
     }
 }

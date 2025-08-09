@@ -1,14 +1,10 @@
-﻿<!-- REVIEW FORM -->
-@model ReviewModel
-@{
-    ViewData["Title"] = "Scrivi Recensione";
-}
+﻿@model ProgettoTSWI.Models.User
 
 <style>
-   
+    
     body {
-        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7));
-                    
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                    url('/img/78612.jpg') no-repeat center center fixed;
         background-size: cover;
     }
 
@@ -160,26 +156,23 @@
     }
 </style>
 
-<div class="container py-5">
-    <div class="form-container">
-        <h1 class="mb-4">Scrivi la tua recensione per <span class="text-primary">@Model.EventName</span></h1>
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">@TempData["Message"]</div>
+}
 
-        <form asp-controller="Event" asp-action="SubmitReview" method="post">
-            @Html.AntiForgeryToken()
-            
-            <input type="hidden" asp-for="EventId" />
-            <input type="hidden" asp-for="EventName" />
-            
-            <div class="form-group mb-4">
-                <label asp-for="Comment" class="form-label">La tua recensione</label>
-                <textarea asp-for="Comment" class="form-control" rows="5" placeholder="Condividi la tua esperienza..."></textarea>
-                <span asp-validation-for="Comment" class="text-danger"></span>
-            </div>
-            
-            <button type="submit" class="btn btn-primary btn-lg w-100">
-                <i class="fas fa-paper-plane me-2"></i>Salva Recensione
-            </button>
-        </form>
+
+<div class="container mt-5">
+    <h2>Profilo Utente</h2>
+    <div class="card">
+        <div class="card-body">
+            <p><strong>ID:</strong> @Model.Id</p>
+            <p><strong>Email:</strong> @Model.Email</p>
+            <p><strong>Nome:</strong> @Model.Name @Model.Surname</p>
+            <p><strong>Ruolo:</strong> @Model.Ruolo</p>
+        </div>
     </div>
 </div>
-</div>
+
+<!--Fino a qu dovrebbe andare bene ho generto la pagina con tutte le informazioni, poi da cui in poi, devo aprirne un'altra dove mettere il form e poi fare una post coi dati-->
+<a class="btn btn-outline-success px-4" asp-controller="User" asp-action="ModifyInfoUser">Modifica le tue informazioni</a>
