@@ -15,14 +15,7 @@
 }
 
 <form asp-action="DeleteUsers" asp-controller="DeleteUsers" method="post">
-    @* @Html.AntiForgeryToken() *@
 
-    @* Checkbox per selezionare tutti  *@
-    @* <div class="form-check mb-3"> *@
-    @*     <input type="checkbox" class="form-check-input" id="selectAll" *@
-    @*            onchange="document.querySelectorAll('input[name=\'selectedUsers\']').forEach(cb => cb.checked = this.checked)"> *@
-    @*     <label class="form-check-label" for="selectAll">Seleziona/Deseleziona Tutti</label> *@
-    @* </div> *@
 
     <div class="row">
         @for (int i = 0; i < Model.Count; i++)

@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ProgettoTSWI.Data;
-//using System.Data.Entity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using ProgettoTSWI.Models;
@@ -15,17 +12,16 @@ namespace ProgettoTSWI.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        //private readonly ApplicationDbContext _context;
-
         private readonly IHttpClientFactory _httpClientFactory;
 
         public AdminController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
+
+        // Chiamata per ricevere gli eventi non approvati e reindirizzamento alla view ApproveRequest
         public async Task<IActionResult> ApproveRequests()
         {
-            //var client = _httpClientFactory.CreateClient();
 
             var clientHandler = new HttpClientHandler();
             var cookieContainer = new CookieContainer();
@@ -42,7 +38,6 @@ namespace ProgettoTSWI.Controllers
 
 
             var response = await client.GetAsync("https://localhost:7087/api/AdminAPI/unapproved");
-            //Console.WriteLine($"StatusCode: {response.StatusCode}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -50,16 +45,14 @@ namespace ProgettoTSWI.Controllers
             }
 
             var json = await response.Content.ReadAsStringAsync();
-            //Console.WriteLine(json);
             var unapprovedEvents = JsonConvert.DeserializeObject<List<Event>>(json);
 
             return View("../AdminPages/ApproveRequests", unapprovedEvents);
         }
 
+        // Chiamata per ricevere le partecipazioni con reviews non nulle o non vuote e reindirizzamento alla view DeleteReviews
         public async Task<IActionResult> DeleteReviews()
         {
-            //var reviews = await _context.Participations.Where(p => p.ParticipationReview != "").ToListAsync();
-            //var client = _httpClientFactory.CreateClient();
 
             var clientHandler = new HttpClientHandler();
             var cookieContainer = new CookieContainer();
@@ -77,7 +70,6 @@ namespace ProgettoTSWI.Controllers
 
 
             var response = await client.GetAsync("https://localhost:7087/api/AdminAPI/reviews");
-            //Console.WriteLine($"StatusCode: {response.StatusCode}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -85,15 +77,14 @@ namespace ProgettoTSWI.Controllers
             }
 
             var json = await response.Content.ReadAsStringAsync();
-            //Console.WriteLine(json);
             var reviews = JsonConvert.DeserializeObject<List<Participation>>(json);
 
             return View("../AdminPages/DeleteReviews", reviews);
         }
 
+        // Chiamata per ricevere gli utenti non admin (solo "User") e reindirizzamento alla view DeleteUsers
         public async Task<IActionResult> DeleteUsers()
         {
-            //var client = _httpClientFactory.CreateClient();
 
 
             var clientHandler = new HttpClientHandler();
@@ -110,7 +101,6 @@ namespace ProgettoTSWI.Controllers
             var client = new HttpClient(clientHandler);
 
             var response = await client.GetAsync("https://localhost:7087/api/AdminAPI/users");
-            //Console.WriteLine($"StatusCode: {response.StatusCode}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -118,15 +108,14 @@ namespace ProgettoTSWI.Controllers
             }
 
             var json = await response.Content.ReadAsStringAsync();
-            //Console.WriteLine(json);
             var users = JsonConvert.DeserializeObject<List<User>>(json);
 
             return View("../AdminPages/DeleteUsers", users);
         }
 
+        // Chiamata per ricevere gli Eventi appprovati e reindirizzamento alla view ManageEvents
         public async Task<IActionResult> ManageEvents()
         {
-            //var client = _httpClientFactory.CreateClient();
 
             var clientHandler = new HttpClientHandler();
             var cookieContainer = new CookieContainer();
@@ -144,7 +133,6 @@ namespace ProgettoTSWI.Controllers
 
 
             var response = await client.GetAsync("https://localhost:7087/api/AdminAPI/confirmedEvents");
-            //Console.WriteLine($"StatusCode: {response.StatusCode}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -152,28 +140,21 @@ namespace ProgettoTSWI.Controllers
             }
 
             var json = await response.Content.ReadAsStringAsync();
-            //Console.WriteLine(json);
             var confEvents = JsonConvert.DeserializeObject<List<Event>>(json);
 
             return View("../AdminPages/ManageEvents", confEvents);
         }
 
-        //public async Task<IActionResult> ManageEvents() //passo la lista degli eventi confermati per i form di eliminazione e modifica
-        //{
-        //    var confirmedEvents = await _context.Events.Where(e => e.IsApproved == true).ToListAsync();
 
-        //    return View("../AdminPages/ManageEvents", confirmedEvents);
-        //}
-
-
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            // Questo elimina il cookie e tutti i claims dell'utente
+            // Elimina il cookie e tutti i claims dell'utente
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            // Redirect alla home o alla pagina di login
+            // Redirect a Index
             return RedirectToAction("Index", "Home");
         }
 

@@ -35,6 +35,7 @@ namespace ProgettoTSWI.Controllers
             return View("../Home/Admin");
         }
 
+        // Ricevo una serie di id, Chiamata di "eliminazione" delle Review e reindirizzamento alla view Admin
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteReview(int[] selectedReviews)
@@ -56,10 +57,6 @@ namespace ProgettoTSWI.Controllers
             clientHandler.CookieContainer = cookieContainer;
 
             var client = new HttpClient(clientHandler);
-
-
-
-            //var client = _httpClientFactory.CreateClient();
             
             var requestBody = new idActionRequest
             {
@@ -87,41 +84,5 @@ namespace ProgettoTSWI.Controllers
             }
             return View("../Home/Admin");
         }
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteReview(int[] selectedReviews)
-        //{
-        //    if (selectedReviews == null || selectedReviews.Length == 0)
-        //    {
-        //        TempData["ErrorMessage"] = "Nessuna reviews selezionata";
-        //        return View("../Home/Admin");
-        //    }
-
-        //    try
-        //    {
-
-        //        //BISOGNA FARE UN UPDATE ALLA TABELLA PARTECIPATION AGGIORNANDO PartecipationReviews a "" 
-        //        var reviewsToDelete = await _context.Participations.Where(p => selectedReviews.Contains(p.ParticipationId)).ToListAsync();
-
-        //        foreach (var participation in reviewsToDelete)
-        //        {
-        //            participation.ParticipationReview = string.Empty; // imposto a stringa vuota
-        //            _context.Entry(participation).Property(p => p.ParticipationReview).IsModified = true; // genererà: UPDATE Participations SET ParticipationReview = '' WHERE ParticipationId = X, dove X sono le review selezionate nella view
-        //        }
-
-
-        //        await _context.SaveChangesAsync();
-
-        //        TempData["SuccessMessage"] = $"Eliminate qta:{reviewsToDelete.Count} reviews con successo";
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        TempData["ErrorMessage"] = "Si è verificato un errore durante l'eliminazione della recensione";
-        //    }
-
-        //    return View("../Home/Admin");
-        //}
-
     }
 }

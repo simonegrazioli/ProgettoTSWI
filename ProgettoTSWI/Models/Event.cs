@@ -20,7 +20,6 @@ namespace ProgettoTSWI.Models
         public string EventLocation { get; set; }
 
 
-        //aggiunta del campo approved per un evento
         public bool IsApproved { get; set; } = false;
 
         public int OrganizerId { get; set; }

@@ -1,15 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
 using Microsoft.AspNetCore.Authorization;
 using ProgettoTSWI.Data;
-//using System.Data.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 namespace ProgettoTSWI.Controllers
 {
-
-
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "Admin")]
@@ -22,7 +18,7 @@ namespace ProgettoTSWI.Controllers
             _context = context;
         }
 
-        // Endpoint API che puoi vedere in Swagger
+        // Ritorno gli eventi non ancora approvati
         [HttpGet("unapproved")]
         public async Task<IActionResult> GetUnapprovedEvents()
         {
@@ -33,6 +29,7 @@ namespace ProgettoTSWI.Controllers
             return Ok(proposedEvents);
         }
 
+        // Ritorno tutte le reviews
         [HttpGet("reviews")]
         public async Task<IActionResult> GetReviews() { 
             var allReviews= await _context.Participations.Where(p => !string.IsNullOrEmpty(p.ParticipationReview)).ToListAsync();
@@ -41,6 +38,7 @@ namespace ProgettoTSWI.Controllers
 
         }
 
+        // Ritorno tutti gli utenti che non sono admin
         [HttpGet("users")]
         public async Task<IActionResult> GetUsers()
         {
@@ -49,6 +47,7 @@ namespace ProgettoTSWI.Controllers
             return Ok(allUsers);
         }
 
+        // Ritorno tutti gli eventi confermati
         [HttpGet("confirmedEvents")]
         public async Task<IActionResult> GetConfirmedEvents()
         {

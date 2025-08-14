@@ -20,8 +20,8 @@ namespace ProgettoTSWI.Controllers
             _context = context;
         }
 
+        // Metto PartecipationReviews a "" senza cancellare la partecipazione (di fatto l'operazione è un update di una o più partecipazioni)
         [HttpPut("deleteReviews")]
-        //[ValidateAntiForgeryToken] non va messo
         public async Task<IActionResult> DeleteReview([FromBody] idActionRequest request)
         {
             Console.WriteLine("richiesta "+request.idSelected);
@@ -33,13 +33,14 @@ namespace ProgettoTSWI.Controllers
             try
             {
 
-                //BISOGNA FARE UN UPDATE ALLA TABELLA PARTECIPATION AGGIORNANDO PartecipationReviews a "" 
+                // BISOGNA FARE UN UPDATE ALLA TABELLA PARTECIPATION AGGIORNANDO PartecipationReviews a "" 
                 var previewsToDelete = await _context.Participations.Where(p => request.idSelected.Contains(p.ParticipationId)).ToListAsync();
 
                 foreach (var participation in previewsToDelete)
                 {
                     participation.ParticipationReview = string.Empty; // imposto a stringa vuota
-                    _context.Entry(participation).Property(p => p.ParticipationReview).IsModified = true; // genererà: UPDATE Participations SET ParticipationReview = '' WHERE ParticipationId = X, dove X sono le review selezionate nella view
+                    _context.Entry(participation).Property(p => p.ParticipationReview).IsModified = true; 
+                    // Genererà la query: {UPDATE Participations SET ParticipationReview = '' WHERE ParticipationId = X}, dove X sono le review selezionate nella view
                 }
 
 

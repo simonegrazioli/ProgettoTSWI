@@ -2,10 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using ProgettoTSWI.Data;
 using ProgettoTSWI.Models;
-using System.Security.Claims;
-using System.Text;
-using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -43,6 +39,7 @@ namespace ProgettoTSWI.Controllers
             _context = context;
         }
 
+        // Inserisco un nuovo evento con riferimento dell'organizzatore dell'admin corrente
         [HttpPost("insert")]
         public async Task<IActionResult> InsertEvent([FromBody] EventJson newEventJson)
         {
@@ -75,7 +72,7 @@ namespace ProgettoTSWI.Controllers
             }
         }
 
-
+        // Elimino l'evento o gli eventi selezionati
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteEvent([FromBody] idActionRequest request)
         {
@@ -108,8 +105,8 @@ namespace ProgettoTSWI.Controllers
             }
         }
 
+        // Ritorno alla view i dati modificabili dell'evento selezioanto da modificare (così da precompilare i campi del form)
         [HttpPost("preEdit")]
-        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> PreEditEvent([FromBody] int eventToUp)
         {
             try
@@ -128,6 +125,7 @@ namespace ProgettoTSWI.Controllers
             }
         }
 
+        // Modifica effettiva dell'evento selezionato con i nuovi dati
         [HttpPut("update")]
         public async Task<IActionResult> EditEvent([FromBody] EventJson eventUpdated)
         {

@@ -60,19 +60,10 @@
                 <h5>Edit Event</h5>
             </div>
             <div class="card-body">
-                <!-- Form di selezione evento (GET) -->
                 <form asp-action="PreEditEvent" asp-controller="ManageEvent" method="post">
                     <div class="form-group mb-3">
                         <label>Select Event to Edit</label>
                         <select name="eventId" class="form-control" required>
-                            @* <option value="">Select an Event</option> *@
-                            @* @foreach (var evt in Model) *@
-                            @* { *@
-                            @*     <option value="@evt.EventId" *@
-                            @*             selected="@(Context.Request.Query["eventId"] == evt.EventId.ToString())"> *@
-                            @*         @evt.EventName (ID: @evt.EventId) - @evt.EventDate.ToString("dd/MM/yyyy") *@
-                            @*     </option> *@
-                            @* } *@
                             <option value="">Select an Event</option>
                             @foreach (Event evt in Model)
                             {
@@ -91,7 +82,6 @@
 
     @* Form di Eliminazione *@
 
-    @* @model List<ProgettoTSWI.Models.Event> *@
     
 
     @if (Model==null || Model.Count()==0)
@@ -100,28 +90,7 @@
     }
     else
     {
-  @*       <div class="card"> *@
-  @*           <div class="card-header bg-danger text-white"> *@
-  @*               <h5>Delete Event</h5> *@
-		@* 	</div> *@
-		@* 	<div class="card-body"> *@
-		@* 		<form asp-action="DeleteEvent" asp-controller="ManageEvent" method="post"> *@
-		@* 			<div class="form-group mb-3"> *@
-		@* 				<label>Select an Event to Delete</label> *@
-		@* 				<select class="form-control" name="eventId" required> *@
-		@* 					<option value="">Select an Event</option> *@
-  @*                           @foreach (Event evt in Model) *@
-		@* 					{ *@
-		@* 						<option value="@evt.EventId"> *@
-		@* 							@evt.EventName - @evt.EventDate.ToString("dd/MM/yyyy HH:mm") *@
-		@* 						</option> *@
-		@* 					} *@
-		@* 				</select> *@
-		@* 			</div> *@
-		@* 			<button type="submit" class="btn btn-danger">Delete Event</button> *@
-		@* 		</form> *@
-		@* 	</div> *@
-		@* </div> *@
+  
         <div class="card mb-4">
             <div class="card-header bg-danger text-dark">
                 <h5>Edit Event</h5>
@@ -140,7 +109,6 @@
                                         <span><strong>Data:</strong> @evt.EventDate.ToString("dd/MM/yyyy HH:mm")</span><br />
                                         <span><strong>Prezzo:</strong> @(evt.EventPrice.HasValue ? evt.EventPrice.Value.ToString("C") : "Gratuito")</span><br />
                                         <span><strong>Luogo:</strong> @evt.EventLocation</span>
-                                        @* evt.EventPrice?.ToString("C") → Format valuta automatico (es. in italiano: €12,00) *@
                                     </label>
                                 </div>
                             }

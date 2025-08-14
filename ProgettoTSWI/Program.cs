@@ -9,7 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient();
 
-//builder.Services.AddHttpContextAccessor(); 
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -48,7 +47,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-//ripulisco i cookie all'avvio in modo che il browser se li tiene in cache non crea problemi
+// Ripulisco i cookie all'avvio in modo che il browser se li tiene in cache non crea problemi
 app.Use(async (context, next) =>
 {
     if (!context.Request.Path.StartsWithSegments("/api"))
