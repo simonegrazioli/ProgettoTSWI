@@ -30,11 +30,11 @@ namespace ProgettoTSWI.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "Admin")]
-    public class ManageEventAPIController : ControllerBase
+    public class AdminManageEventAPIController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public ManageEventAPIController(ApplicationDbContext context)
+        public AdminManageEventAPIController(ApplicationDbContext context)
         {
             _context = context;
         }

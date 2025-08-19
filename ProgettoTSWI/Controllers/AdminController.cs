@@ -155,7 +155,7 @@ namespace ProgettoTSWI.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             // Redirect a Index
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "AdminHome");
         }
 
     }

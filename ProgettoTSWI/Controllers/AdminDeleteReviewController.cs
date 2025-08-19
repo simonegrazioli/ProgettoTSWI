@@ -1,43 +1,45 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using ProgettoTSWI.Data;
 using ProgettoTSWI.Models;
-//using System.Data.Entity;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using System.Text;
-using System.Net.Http.Json;
+using System.Linq.Expressions;
 using System.Net;
+using System.Text;
+
 
 namespace ProgettoTSWI.Controllers
-{   
-
-
+{
     [Authorize(Roles = "Admin")]
-    public class ApproveRequestController : Controller
+    public class AdminDeleteReviewController : Controller
     {
 
+
         private readonly IHttpClientFactory _httpClientFactory;
-        public ApproveRequestController(IHttpClientFactory httpClientFactory)
+        public AdminDeleteReviewController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
+
 
         public IActionResult Back()
         {
             return View("../Home/Admin");
         }
 
-        // Ricevo dalla view degli di e un tipo di azione da fare, in base all'azione faccio una chiamata per approvare o rifiutare e ritorno alla view Admin
+        // Ricevo una serie di id, Chiamata di "eliminazione" delle Review e reindirizzamento alla view Admin
         [HttpPost]
-        public async Task<IActionResult> ConfirmRefuseRequest(int[] selectedRequests, string actionType)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteReview(int[] selectedReviews)
         {
-            if (selectedRequests == null || selectedRequests.Length == 0)
+            if (selectedReviews == null || selectedReviews.Length == 0)
             {
-                TempData["ErrorMessage"] = "Nessun evento selezionato.";
+                TempData["ErrorMessage"] = "Nessuna reviews selezionata";
                 return View("../Home/Admin");
             }
-
             var clientHandler = new HttpClientHandler();
             var cookieContainer = new CookieContainer();
 
@@ -50,11 +52,10 @@ namespace ProgettoTSWI.Controllers
             clientHandler.CookieContainer = cookieContainer;
 
             var client = new HttpClient(clientHandler);
-
-
+            
             var requestBody = new idActionRequest
             {
-                idSelected = selectedRequests,
+                idSelected = selectedReviews,
             };
 
             var jsonContent = new StringContent(
@@ -64,29 +65,7 @@ namespace ProgettoTSWI.Controllers
             );//metto le info da passare alla richiesta nel body in formato json
 
 
-            HttpResponseMessage response;
-
-            if (actionType == "approve")
-            {
-                response = await client.PostAsync("https://localhost:7087/api/ApproveRequestAPI/confirm", jsonContent);
-            }
-            else if (actionType == "refuse")
-            {
-                var request = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Delete,
-                    RequestUri = new Uri("https://localhost:7087/api/ApproveRequestAPI/refuse"),
-                    Content = jsonContent 
-                };
-
-                response = await client.SendAsync(request);
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Richiesta non valida";
-
-                return View("../Home/Admin");
-            }
+            var response = await client.PutAsync("https://localhost:7087/api/AdminDeleteReviewsAPI/deleteReviews", jsonContent);
 
             if (response.IsSuccessStatusCode)
             {
@@ -96,9 +75,8 @@ namespace ProgettoTSWI.Controllers
             }
             else
             {
-                TempData["ErrorMessage"] = response.StatusCode;
+                TempData["ErrorMessage"] = "Something goes wrong "+response;
             }
-
             return View("../Home/Admin");
         }
     }

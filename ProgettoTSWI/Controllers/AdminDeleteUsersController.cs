@@ -15,10 +15,10 @@ using System.Text;
 namespace ProgettoTSWI.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class DeleteUsersController : Controller
+    public class AdminDeleteUsersController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        public DeleteUsersController(IHttpClientFactory httpClientFactory)
+        public AdminDeleteUsersController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
@@ -65,7 +65,7 @@ namespace ProgettoTSWI.Controllers
                     "application/json"
                 );
 
-                var response = await client.PostAsync("https://localhost:7087/api/DeleteUsersAPI/delete",jsonContent);
+                var response = await client.PostAsync("https://localhost:7087/api/AdminDeleteUsersAPI/delete",jsonContent);
 
 
                 if (response.IsSuccessStatusCode)

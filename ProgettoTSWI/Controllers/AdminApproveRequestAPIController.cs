@@ -12,10 +12,10 @@ namespace ProgettoTSWI.Controllers
     [Route("api/[controller]")]
     [Authorize(Roles = "Admin")]
 
-    public class ApproveRequestAPIController : ControllerBase
+    public class AdminApproveRequestAPIController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        public ApproveRequestAPIController(ApplicationDbContext context)
+        public AdminApproveRequestAPIController(ApplicationDbContext context)
         {
             _context = context;
         }

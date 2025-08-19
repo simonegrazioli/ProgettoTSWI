@@ -20,11 +20,11 @@ namespace ProgettoTSWI.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
-    public class HomeAPIController : ControllerBase
+    public class AdminHomeAPIController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public HomeAPIController(ApplicationDbContext context)
+        public AdminHomeAPIController(ApplicationDbContext context)
         {
             _context = context;
         }

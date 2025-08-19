@@ -11,7 +11,7 @@
     }
 
     <div class="d-flex justify-content-end">
-        <a asp-action="Back" asp-controller="ApproveRequest" class="btn btn-secondary">Indietro</a>
+        <a asp-action="Back" asp-controller="AdminApproveRequest" class="btn btn-secondary">Indietro</a>
     </div>
     @* Form di Inserimento *@
     <div class="card mb-4">
@@ -19,7 +19,7 @@
             <h5>Add New Event</h5>
         </div>
         <div class="card-body">
-            <form asp-action="InsertEvent" asp-controller="ManageEvent" method="post">
+            <form asp-action="InsertEvent" asp-controller="AdminManageEvent" method="post">
 
                 <div class="form-group mb-3">
                     <label for="eventName">Event Name</label>
@@ -60,7 +60,7 @@
                 <h5>Edit Event</h5>
             </div>
             <div class="card-body">
-                <form asp-action="PreEditEvent" asp-controller="ManageEvent" method="post">
+                <form asp-action="PreEditEvent" asp-controller="AdminManageEvent" method="post">
                     <div class="form-group mb-3">
                         <label>Select Event to Edit</label>
                         <select name="eventId" class="form-control" required>
@@ -96,7 +96,7 @@
                 <h5>Edit Event</h5>
             </div>
             <div class="card-body">
-                <form asp-action="DeleteEvent" asp-controller="ManageEvent" method="post">
+                <form asp-action="DeleteEvent" asp-controller="AdminManageEvent" method="post">
                     <div class="form-group mb-3">
                         <label>Seleziona uno o più eventi da eliminare</label>
                         <div class="form-check">

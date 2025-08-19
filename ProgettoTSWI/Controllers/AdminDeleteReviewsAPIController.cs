@@ -11,11 +11,11 @@ namespace ProgettoTSWI.Controllers
     [Route("api/[controller]")]
     [Authorize(Roles = "Admin")]
 
-    public class DeleteReviewsAPIController : ControllerBase
+    public class AdminDeleteReviewsAPIController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public DeleteReviewsAPIController(ApplicationDbContext context)
+        public AdminDeleteReviewsAPIController(ApplicationDbContext context)
         {
             _context = context;
         }

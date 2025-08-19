@@ -14,7 +14,7 @@
     <div class="alert alert-warning">No users available</div>
 }
 
-<form asp-action="DeleteUsers" asp-controller="DeleteUsers" method="post">
+<form asp-action="DeleteUsers" asp-controller="AdminDeleteUsers" method="post">
 
 
     <div class="row">
@@ -69,7 +69,7 @@
     </div>
     <div class="form-group">
         <button type="submit" class="btn btn-danger">Elimina Selezionati</button>
-        <a asp-action="Back" asp-controller="DeleteUsers" class="btn btn-secondary">Annulla</a>
+        <a asp-action="Back" asp-controller="AdminDeleteUsers" class="btn btn-secondary">Annulla</a>
     </div>
 </form>
 

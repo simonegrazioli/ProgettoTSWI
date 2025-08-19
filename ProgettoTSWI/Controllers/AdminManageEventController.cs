@@ -10,7 +10,7 @@ using System.Text;
 namespace ProgettoTSWI.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class ManageEventController : Controller
+    public class AdminManageEventController : Controller
     {
         public class EventJson
         {
@@ -31,7 +31,7 @@ namespace ProgettoTSWI.Controllers
         }
 
         private readonly IHttpClientFactory _httpClientFactory;
-        public ManageEventController(IHttpClientFactory httpClientFactory)
+        public AdminManageEventController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
@@ -75,7 +75,7 @@ namespace ProgettoTSWI.Controllers
                     var json = JsonConvert.SerializeObject(newEventJson);
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                    var response = await client.PostAsync("https://localhost:7087/api/ManageEventAPI/insert", content);
+                    var response = await client.PostAsync("https://localhost:7087/api/AdminManageEventAPI/insert", content);
 
                     if (response.IsSuccessStatusCode)
                         TempData["SuccessMessage"] = "Evento creato con successo!";
@@ -103,7 +103,7 @@ namespace ProgettoTSWI.Controllers
             if (eventIds == null || !eventIds.Any())
             {
                 TempData["ErrorMessage"] = "Seleziona almeno un evento da eliminare.";
-                return RedirectToAction("Admin", "Home");
+                return RedirectToAction("Admin", "AdminHome");
             }
 
             try
@@ -137,7 +137,7 @@ namespace ProgettoTSWI.Controllers
                 var request = new HttpRequestMessage
                 {
                     Method = HttpMethod.Delete,
-                    RequestUri = new Uri("https://localhost:7087/api/ManageEventAPI/delete"),
+                    RequestUri = new Uri("https://localhost:7087/api/AdminManageEventAPI/delete"),
                     Content = jsonContent 
                 };
 
@@ -158,7 +158,7 @@ namespace ProgettoTSWI.Controllers
                 TempData["ErrorMessage"] = "Errore interno durante la chiamata all'API.";
             }
 
-            return RedirectToAction("Admin", "Home");
+            return RedirectToAction("Admin", "AdminHome");
         }
 
         // Faccio una chiamata API e reindirizzo alla view UpdateEvent con i valori dell'evento selezionato che verranno precompilati
@@ -185,7 +185,7 @@ namespace ProgettoTSWI.Controllers
                 Console.WriteLine(json);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await client.PostAsync("https://localhost:7087/api/ManageEventAPI/preEdit", content);
+                var response = await client.PostAsync("https://localhost:7087/api/AdminManageEventAPI/preEdit", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -208,7 +208,7 @@ namespace ProgettoTSWI.Controllers
                 TempData["ErrorMessage"] = "Errore durante la chiamata all'API."+ex.Message;
             }
 
-            return RedirectToAction("Admin", "Home");
+            return RedirectToAction("Admin", "AdminHome");
         }
 
         // Chiamata per l'effettiva modifica dell'evento
@@ -234,7 +234,7 @@ namespace ProgettoTSWI.Controllers
                 var json = JsonConvert.SerializeObject(eventUpdated);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await client.PutAsync("https://localhost:7087/api/ManageEventAPI/update", content);
+                var response = await client.PutAsync("https://localhost:7087/api/AdminManageEventAPI/update", content);
 
                 if (response.IsSuccessStatusCode)
                 {

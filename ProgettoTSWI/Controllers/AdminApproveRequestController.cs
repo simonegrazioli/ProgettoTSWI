@@ -1,50 +1,43 @@
-﻿using Azure;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using ProgettoTSWI.Data;
 using ProgettoTSWI.Models;
-using System.Linq.Expressions;
-using System.Net;
+//using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Text;
-
+using System.Net.Http.Json;
+using System.Net;
 
 namespace ProgettoTSWI.Controllers
-{
-    [Authorize(Roles = "Admin")]
-    public class DeleteReviewController : Controller
-    {
-        //private readonly ApplicationDbContext _context;
+{   
 
-        //public DeleteReviewController(ApplicationDbContext context)
-        //{
-        //    _context = context;
-        //}
+
+    [Authorize(Roles = "Admin")]
+    public class AdminApproveRequestController : Controller
+    {
 
         private readonly IHttpClientFactory _httpClientFactory;
-        public DeleteReviewController(IHttpClientFactory httpClientFactory)
+        public AdminApproveRequestController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
-
 
         public IActionResult Back()
         {
             return View("../Home/Admin");
         }
 
-        // Ricevo una serie di id, Chiamata di "eliminazione" delle Review e reindirizzamento alla view Admin
+        // Ricevo dalla view degli di e un tipo di azione da fare, in base all'azione faccio una chiamata per approvare o rifiutare e ritorno alla view Admin
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteReview(int[] selectedReviews)
+        public async Task<IActionResult> ConfirmRefuseRequest(int[] selectedRequests, string actionType)
         {
-            if (selectedReviews == null || selectedReviews.Length == 0)
+            if (selectedRequests == null || selectedRequests.Length == 0)
             {
-                TempData["ErrorMessage"] = "Nessuna reviews selezionata";
+                TempData["ErrorMessage"] = "Nessun evento selezionato.";
                 return View("../Home/Admin");
             }
+
             var clientHandler = new HttpClientHandler();
             var cookieContainer = new CookieContainer();
 
@@ -57,10 +50,11 @@ namespace ProgettoTSWI.Controllers
             clientHandler.CookieContainer = cookieContainer;
 
             var client = new HttpClient(clientHandler);
-            
+
+
             var requestBody = new idActionRequest
             {
-                idSelected = selectedReviews,
+                idSelected = selectedRequests,
             };
 
             var jsonContent = new StringContent(
@@ -70,7 +64,29 @@ namespace ProgettoTSWI.Controllers
             );//metto le info da passare alla richiesta nel body in formato json
 
 
-            var response = await client.PutAsync("https://localhost:7087/api/DeleteReviewsAPI/deleteReviews", jsonContent);
+            HttpResponseMessage response;
+
+            if (actionType == "approve")
+            {
+                response = await client.PostAsync("https://localhost:7087/api/AdminApproveRequestAPI/confirm", jsonContent);
+            }
+            else if (actionType == "refuse")
+            {
+                var request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri("https://localhost:7087/api/AdminApproveRequestAPI/refuse"),
+                    Content = jsonContent 
+                };
+
+                response = await client.SendAsync(request);
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Richiesta non valida";
+
+                return View("../Home/Admin");
+            }
 
             if (response.IsSuccessStatusCode)
             {
@@ -80,8 +96,9 @@ namespace ProgettoTSWI.Controllers
             }
             else
             {
-                TempData["ErrorMessage"] = "Something goes wrong "+response;
+                TempData["ErrorMessage"] = response.StatusCode;
             }
+
             return View("../Home/Admin");
         }
     }

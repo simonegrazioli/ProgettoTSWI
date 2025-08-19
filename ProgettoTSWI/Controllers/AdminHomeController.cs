@@ -19,10 +19,10 @@ namespace ProgettoTSWI.Controllers
         public string Email { get; set; }
         public string Ruolo { get; set; }
     }
-    public class HomeController : Controller
+    public class AdminHomeController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        public HomeController(IHttpClientFactory httpClientFactory)
+        public AdminHomeController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
@@ -30,25 +30,25 @@ namespace ProgettoTSWI.Controllers
         [AllowAnonymous]
         public IActionResult Index()
         {
-            return View();
+            return View("~/Views/Home/Index.cshtml");
         }
 
         public IActionResult Privacy()
         {
-            return View();
+            return View("~/Views/Home/Privacy.cshtml");
         }
 
 
         [Authorize(Roles = "Admin")] // Solo per admin
         public IActionResult Admin()
         {
-            return View();
+            return View("~/Views/Home/Admin.cshtml");
         }
 
         [Authorize(Roles = "User")] // Solo per user
         public IActionResult AfterLog()
         {
-            return View();
+            return View("~/Views/Home/AfterLog.cshtml");
         }
 
         // Chiamata API per autenticazione utente
@@ -70,7 +70,7 @@ namespace ProgettoTSWI.Controllers
                 Console.WriteLine(json);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await client.PostAsync("https://localhost:7087/api/HomeAPI/login", content);
+                var response = await client.PostAsync("https://localhost:7087/api/AdminHomeAPI/login", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -92,23 +92,23 @@ namespace ProgettoTSWI.Controllers
 
                     if (userInfo.Ruolo == "Admin")
                     {
-                        return RedirectToAction("Admin", "Home");
+                        return View("~/Views/Home/Admin.cshtml");
                     }
                     else //si assume che se un utente non è admin, è per forza user
                     {
-                        return RedirectToAction("AfterLog", "Home");
+                        return View("~/Views/Home/AfterLog.cshtml");
                     }
                 }
                 else
                 {
                     TempData["ErrorMessage"] = "Login fallito, credenziali errate";
-                    return RedirectToAction("Index", "Home");
+                    return View("~/Views/Home/Index.cshtml");
                 }
             }
             catch (Exception)
             {
                 TempData["ErrorMessage"] = "Errore di comunicazione con l'API";
-                return RedirectToAction("Index", "Home");
+                return View("~/Views/Home/Index.cshtml");
             }
         }
 
