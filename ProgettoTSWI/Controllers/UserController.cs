@@ -22,6 +22,7 @@ namespace ProgettoTSWI.Controllers
             var client = _httpClientFactory.CreateClient();
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             int id = int.Parse(userId);
+            client.DefaultRequestHeaders.Add("Cookie", Request.Headers["Cookie"].ToString());
             var response = await client.GetAsync($"https://localhost:7087/api/Api/infoUser?id={id}");
 
             if (!response.IsSuccessStatusCode)
@@ -50,6 +51,7 @@ namespace ProgettoTSWI.Controllers
                 user.Id = int.Parse(userId);
 
                 Console.WriteLine("Prima");
+                client.DefaultRequestHeaders.Add("Cookie", Request.Headers["Cookie"].ToString());
                 var response = await client.PostAsJsonAsync(
                    "https://localhost:7087/api/Api/EditUser", user);
                 

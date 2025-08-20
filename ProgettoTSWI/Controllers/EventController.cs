@@ -29,6 +29,10 @@ namespace ProgettoTSWI.Controllers
             try
             {
                 var client = _httpClientFactory.CreateClient();
+
+                // AGGIUNGI QUESTA RIGA - passa il cookie anche per le richieste GET
+                client.DefaultRequestHeaders.Add("Cookie", Request.Headers["Cookie"].ToString());
+
                 var response = await client.GetAsync("https://localhost:7087/api/Api/events");
 
                 if (response.StatusCode == HttpStatusCode.NotFound)
@@ -51,7 +55,9 @@ namespace ProgettoTSWI.Controllers
                 // Se l'utente è loggato, verifica le partecipazioni
                 if (!string.IsNullOrEmpty(userId))
                 {
+                    // AGGIUNGI IL COOKIE ANCHE QUI
                     var partecipationsResponse = await client.GetAsync($"https://localhost:7087/api/Api/participations/user/{userId}");
+
                     if (partecipationsResponse.IsSuccessStatusCode)
                     {
                         var partecipations = await partecipationsResponse.Content.ReadFromJsonAsync<List<Participation>>();
@@ -79,13 +85,15 @@ namespace ProgettoTSWI.Controllers
         [HttpGet]
         public async Task<IActionResult> MyEvent()
         {
-          
+
             var client = _httpClientFactory.CreateClient();
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             int id = int.Parse(userId);//in teoria con authorize non può essere nullo qui
 
+            client.DefaultRequestHeaders.Add("Cookie", Request.Headers["Cookie"].ToString());
             var response = await client.GetAsync($"https://localhost:7087/api/Api/MyEvents?id={id}");
-            
+
             if (!response.IsSuccessStatusCode)
                 return View("Error");
             //li ritorna la lista di eventi organizzati o proposti da quell'utente 
@@ -117,6 +125,8 @@ namespace ProgettoTSWI.Controllers
             model.OrganizerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
             var client = _httpClientFactory.CreateClient();
+
+            client.DefaultRequestHeaders.Add("Cookie", Request.Headers["Cookie"].ToString());
             var response = await client.PostAsJsonAsync(
                 "https://localhost:7087/api/Api/createEvent",
                 model);
@@ -243,7 +253,7 @@ namespace ProgettoTSWI.Controllers
                 }
 
                 var client = _httpClientFactory.CreateClient();
-
+                client.DefaultRequestHeaders.Add("Cookie", Request.Headers["Cookie"].ToString());
                 var response = await client.PostAsJsonAsync(
                     "https://localhost:7087/api/Api/participations/confirm", new
                     {
@@ -290,6 +300,7 @@ namespace ProgettoTSWI.Controllers
 
                
                 var client = _httpClientFactory.CreateClient();
+                client.DefaultRequestHeaders.Add("Cookie", Request.Headers["Cookie"].ToString());
                 var response = await client.PostAsJsonAsync(
                     "https://localhost:7087/api/Api/participations/delete",
                     new
@@ -333,7 +344,7 @@ namespace ProgettoTSWI.Controllers
 
                 // Aggiungi l'userId al modello
                 model.UserId = int.Parse(userId);
-
+                client.DefaultRequestHeaders.Add("Cookie", Request.Headers["Cookie"].ToString());
                 var response = await client.PutAsJsonAsync(
                     "https://localhost:7087/api/Api/participations/review",
                     model);

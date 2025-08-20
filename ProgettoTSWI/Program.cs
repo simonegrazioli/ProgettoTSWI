@@ -1,114 +1,149 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models; // Per OpenApiInfo
 using ProgettoTSWI.Data;
-using System.Reflection; // Per Assembly
-
 
 var builder = WebApplication.CreateBuilder(args);
 
 
-// Aggiungi servizi Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "ProgettoTSWI API",
-        Version = "v1",
-        Description = "API per la gestione utenti",
-        Contact = new OpenApiContact
-        {
-            Name = "Supporto",
-            Email = "supporto@progetto.it"
-        }
-    });
-
-    // Aggiungi supporto per i commenti XML
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    if (File.Exists(xmlPath))
-    {
-        c.IncludeXmlComments(xmlPath);
-    }
-
-    // Aggiungi supporto per gli attributi [Authorize]
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "JWT Authorization header using the Bearer scheme.",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
-});
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-    sqlOptions =>
-    {
-        sqlOptions.EnableRetryOnFailure(
-            maxRetryCount: 3,
-            maxRetryDelay: TimeSpan.FromSeconds(30),
-            errorNumbersToAdd: null);
-    }
-    ));
-
-builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 
+
+// Add services to the container.
+builder.Services.AddControllersWithViews();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
+        options.Cookie.Name = "TempAuthCookie";
         options.LoginPath = "/Account/Login";
-        options.AccessDeniedPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnRedirectToLogin = ctx =>
+            {
+                // Se è una chiamata API rispondi 401
+                if (ctx.Request.Path.StartsWithSegments("/api"))
+                {
+                    ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    return Task.CompletedTask;
+                }
+
+                // Se l'utente è sulla root o su Home -> vai a Login
+                if (ctx.Request.Path == "/" || ctx.Request.Path.StartsWithSegments("/Home"))
+                {
+                    ctx.Response.Redirect(options.LoginPath);
+                }
+                else
+                {
+                    // In tutti gli altri casi non loggato -> AccessDenied
+                    ctx.Response.Redirect(options.AccessDeniedPath);
+                }
+
+                return Task.CompletedTask;
+            },
+
+            OnRedirectToAccessDenied = ctx =>
+            {
+                if (ctx.Request.Path.StartsWithSegments("/api"))
+                {
+                    ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    return Task.CompletedTask;
+                }
+                ctx.Response.Redirect(ctx.RedirectUri);
+                return Task.CompletedTask;
+            }
+        };
     });
 
-// Aggiungi prima di builder.Build()
-BCrypt.Net.BCrypt.EnhancedHashPassword("", 11, BCrypt.Net.HashType.SHA256);
+
+
+
+
+builder.Services.AddAuthorization(options =>
+{
+    options.DefaultPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+//Questo pezzo serve a visuallizare Xml per i commmenti dello swagger(è super opzionale nel caso lo tolgiamo) 
+builder.Services.AddSwaggerGen(c =>
+{
+    // Imposta il percorso del file XML dei commenti
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+    // Includi i commenti XML nello Swagger
+    c.IncludeXmlComments(xmlPath);
+
+  
+});
+
 
 var app = builder.Build();
 
-// Abilita Swagger in sviluppo
-if (app.Environment.IsDevelopment())
+// Ripulisco i cookie all'avvio in modo che il browser se li tiene in cache non crea problemi
+app.Use(async (context, next) =>
 {
-    app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
+    if (!context.Request.Path.StartsWithSegments("/api"))
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "ProgettoTSWI v1");
-        c.RoutePrefix = "api-docs"; // Accessibile su /api-docs
-    });
-}
-
-app.UseStaticFiles();
-
-app.Use(async (context, next) => {
-    // Debug: stampa tutte le richieste API
-    if (context.Request.Path.StartsWithSegments("/api"))
-    {
-        Console.WriteLine($"API Request: {context.Request.Method} {context.Request.Path}");
+        // Verifica se ? una nuova sessione o mancano cookie
+        if (!context.Request.Cookies.ContainsKey("TempAuthCookie") ||
+            context.Request.Path == "/Home/Index")
+        {
+            await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            context.Response.Headers["Cache-Control"] = "no-cache, no-store";
+        }
     }
     await next();
 });
 
+//Per far si che quando lancio l'applicazione mi apra la finestra su login
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
 
 
 
+app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers(); // Questo è fondamentale
-});
+
+app.MapControllerRoute(
+    name: "Admin",
+    pattern: "Admin/{action}",
+    defaults: new { controller = "Admin" });
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
-
 
 app.Run();

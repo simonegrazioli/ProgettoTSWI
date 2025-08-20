@@ -1,12 +1,23 @@
-﻿using Azure.Core;
+﻿
+
+using Azure.Core;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using ProgettoTSWI.Models;
+using System.Diagnostics;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 
+public class UserDto
+{
+    public int Id { get; set; }
+    public string Email { get; set; }
+    public string Ruolo { get; set; }
+}
 public class AccountController : Controller
 {
     private readonly IHttpClientFactory _httpClientFactory;
@@ -16,73 +27,109 @@ public class AccountController : Controller
         _httpClientFactory = httpClientFactory;
     }
 
-    
-    [HttpGet]
+
+    [AllowAnonymous]
     public IActionResult Login()
+
     {
-        return View(new LoginModel());
+        Console.WriteLine("************************-------QUi-----********************************************");
+        return View("../Account/Login");
+    }
+
+    public IActionResult Privacy()
+    {
+        return View();
     }
 
     
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginModel model)
+    // Mostra la pagina di Accesso Negato
+    public IActionResult AccessDenied()
     {
-        if (!ModelState.IsValid)
-            return View(model);
+        return View();
+    }
 
+    [Authorize(Roles = "Admin")] // Solo per admin
+    public IActionResult Admin()
+    {
+        return View();
+    }
+
+    [Authorize(Roles = "User")] // Solo per user
+    public IActionResult AfterLog()
+    {
+        return View();
+    }
+
+    // Chiamata API per autenticazione utente
+    [HttpPost]
+    //[ValidateAntiForgeryToken]
+    public async Task<IActionResult> Login(string Email, string Password)
+    {
         try
         {
             var client = _httpClientFactory.CreateClient();
-            
-            var loginRequest = new
+
+            var loginData = new
             {
-                Email = model.Email?.Trim(), // Aggiungi Trim per sicurezza
-                Password = model.Password?.Trim()
+                Email,
+                Password
             };
 
-           
-            // 3. Invia con controllo degli headers
-            var content = new StringContent(
-                JsonSerializer.Serialize(loginRequest),
-                Encoding.UTF8,
-                "application/json");
+            var json = JsonConvert.SerializeObject(loginData);
+            Console.WriteLine(json);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await client.PostAsync("https://localhost:7087/api/Api/login", content);
-           
 
             if (response.IsSuccessStatusCode)
             {
-                var userData = await response.Content.ReadFromJsonAsync<User>();
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var userInfo = JsonConvert.DeserializeObject<UserDto>(responseBody);
 
                 var claims = new List<Claim>
-                {
-                    new(ClaimTypes.NameIdentifier, userData.Id.ToString()),
-                    new(ClaimTypes.Email, userData.Email),
-                    new(ClaimTypes.Name, userData.Name),
-                    new(ClaimTypes.Role, userData.Ruolo)
-                };
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, userInfo.Id.ToString()),
+                        new Claim(ClaimTypes.Role, userInfo.Ruolo)
+                    };
+
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
                 await HttpContext.SignInAsync(
-                    new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme)));
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity)
+                );
 
-                
-
+                if (userInfo.Ruolo == "Admin")
+                {
+                    return RedirectToAction("Admin", "Home");
+                }
+                else //si assume che se un utente non è admin, è per forza user
+                {   
+                    //qui devo aggiungere li altri claim
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Login fallito, credenziali errate";
                 return RedirectToAction("Index", "Home");
             }
-
-            ModelState.AddModelError("", "Credenziali non valide");
         }
-        catch
+        catch (Exception)
         {
-            ModelState.AddModelError("", "Errore durante il login");
+            TempData["ErrorMessage"] = "Errore di comunicazione con l'API";
+            return RedirectToAction("Index", "Home");
         }
-
-        return View(model);
     }
 
-   
-    [HttpGet]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+
+
+[HttpGet]
     public IActionResult Register()
     {
         return View(new User()); 
@@ -112,8 +159,9 @@ public class AccountController : Controller
             model.Surname = model.Surname?.Trim();
             model.Aka = model.Aka?.Trim();
 
-            
+
             var client = _httpClientFactory.CreateClient();
+            //Qua poi lo cambio con quello di Simo ma con il doppio Hashing, cioe la doppia verifica
             var response = await client.PostAsJsonAsync("https://localhost:7087/api/Api/register", model);
 
             if (response.IsSuccessStatusCode)

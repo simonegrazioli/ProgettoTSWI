@@ -1,11 +1,14 @@
 ﻿using BCrypt.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProgettoTSWI.Data;
 using ProgettoTSWI.Models;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 [ApiController]
 [Route("api/[controller]")]
@@ -45,8 +48,8 @@ public class ApiController : ControllerBase
             if (await _context.Users.AnyAsync(u => u.Email == user.Email))
                 return Conflict("Email già registrata");
 
-           
-            user.Password = BCrypt.Net.BCrypt.EnhancedHashPassword(user.Password, HashType.SHA256);
+
+            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
             user.Ruolo ??= "User";
 
             _context.Users.Add(user);
@@ -62,6 +65,12 @@ public class ApiController : ControllerBase
         }
     }
 
+    public class LoginDto
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
+    }
+
     /// <summary>
     /// Effettua il login
     /// </summary>
@@ -71,58 +80,61 @@ public class ApiController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    public async Task<IActionResult> Login([FromBody] LoginDto model)
     {
-        
-
-        
-        if (request == null || request.Email == null || request.Password == null)
+        if (!ModelState.IsValid)
         {
-            
-            return BadRequest("Formato richiesta non valido");
+            Console.WriteLine("Modello non valido");
+            return BadRequest(new { message = "Dati di login non validi." });
         }
 
-       
-        string email = request.Email.ToString();
-        string password = request.Password.ToString();
+        Console.WriteLine($"Tentativo di login per email: {model.Email}");
 
-        var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Email == request.Email);
-        //qua per renderlo esclusivo delgli uttenti dovrei aggiungere un "where Ruolo=="User"
-
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
         if (user == null)
         {
-           
-            return Unauthorized();
+            Console.WriteLine("Utente non trovato");
+            return Unauthorized(new { message = "Credenziali errate." });
         }
 
+        Console.WriteLine($"\n--- DEBUG PASSWORD ---");
+        Console.WriteLine($"Password fornita: {model.Password}");
+        Console.WriteLine($"Hash nel DB: {user.Password}");
+        Console.WriteLine($"Lunghezza hash: {user.Password?.Length} caratteri");
 
-        bool isPasswordValid = false;
+        // Verifica 1: BCrypt standard
+        bool isStandardValid = BCrypt.Net.BCrypt.Verify(model.Password, user.Password);
+        Console.WriteLine($"Verifica BCrypt standard: {isStandardValid}");
+
+        // Verifica 2: BCrypt Enhanced
+        bool isEnhancedValid = false;
         try
         {
-           
-            BCrypt.Net.BCrypt.Verify(request.Password, user.Password, false, BCrypt.Net.HashType.SHA256);
-            isPasswordValid = true;
+            isEnhancedValid = BCrypt.Net.BCrypt.EnhancedVerify(model.Password, user.Password, HashType.SHA256);
+            Console.WriteLine($"Verifica BCrypt Enhanced (SHA256): {isEnhancedValid}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Errore verifica password: {ex.Message}");
-
-            // Fallback per hash legacy
-            if (user.Password.StartsWith("$2a$") || user.Password.StartsWith("$2b$"))
-            {
-                isPasswordValid = BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
-            }
+            Console.WriteLine($"Errore in EnhancedVerify: {ex.Message}");
         }
 
-        if (!isPasswordValid)
+        if (!isStandardValid && !isEnhancedValid)
         {
-            Console.WriteLine("Password non corrisponde");
-            return Unauthorized();
+            Console.WriteLine("Entrambe le verifiche hanno fallito");
+            return Unauthorized(new { message = "Credenziali errate." });
         }
 
-        Console.WriteLine("Login riuscito");
-        return Ok(new { user.Id, user.Name, user.Email, user.Ruolo });
+        // Se la password era in formato Enhanced, convertila in standard
+        if (isEnhancedValid && !isStandardValid)
+        {
+            Console.WriteLine("Password valida ma in formato Enhanced, conversione in BCrypt standard...");
+            user.Password = BCrypt.Net.BCrypt.HashPassword(model.Password);
+            await _context.SaveChangesAsync();
+            Console.WriteLine("Password convertita con successo");
+        }
+
+        Console.WriteLine($"Login riuscito per utente ID: {user.Id}");
+        return Ok(new { user.Id, user.Email, user.Ruolo });
     }
 
 
@@ -130,9 +142,11 @@ public class ApiController : ControllerBase
 
     /// <summary>
     /// Ritorna i dati di un utente
+    ///METODO CON RICHIESTA DI AUTENTICAZIONE
     /// </summary>
     /// <param name="id">Id dell'utente</param>
     /// <returns>Dati utenteo</returns>
+    [Authorize(Roles = "User")]
     [HttpGet("infoUser")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -183,9 +197,11 @@ public class ApiController : ControllerBase
     /// <summary>
     /// Crea un nuovo evento. Li viene passato un'oggetto simile all'evento originale ma con meno attributi
     /// questo poi viene incorporato in un nuovo evento.
+    ///METODO CON RICHIESTA DI AUTENTICAZIONE
     /// </summary>
     /// <param name="dto">Parte dell'evento che si creerà</param>
     /// <returns>Nuovo evento</returns>
+    [Authorize(Roles = "User")]
     [HttpPost("createEvent")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -243,16 +259,29 @@ public class ApiController : ControllerBase
 
     /// <summary>
     /// Lista di tutti gli eventi proposti da un utente, approvati e non
+    ///METODO CON RICHIESTA DI AUTENTICAZIONE
     /// </summary>
     /// <param name="id">Id dell'utente</param>
     /// <returns>Lista di eventi</returns>
+    [Authorize(Roles = "User")]
     [HttpGet("MyEvents")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> MyEvents(int id)
     {
         try
         {
+            //Controllo se non cerca di accedere alle info di un'altro utente
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            int loggedUserId = int.Parse(userId);
+
+            // Controlla che l'id passato coincida con quello dell'utente autenticato
+            if (loggedUserId != id)
+                return Forbid();
+            
             var MyEvents = await _context.Events
                 .Where(e => e.OrganizerId == id)  // CORRETTO: filtra gli eventi
                 .ToListAsync();
@@ -266,6 +295,7 @@ public class ApiController : ControllerBase
             return StatusCode(500, "Errore interno del server");
         }
     }
+
 
     /// <summary>
     /// Informazioni di un evento in particolare
@@ -345,9 +375,11 @@ public class ApiController : ControllerBase
 
     /// <summary>
     /// Rimuove una partecipazione
+    ///METODO CON RICHIESTA DI AUTENTICAZIONE
     /// </summary>
     /// <param name="request">Richiesta di rimozione</param>
     /// <returns>Ritorna 200 e salva il cambiamento</returns>
+    [Authorize(Roles = "User")]
     [HttpPost("participations/delete")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -385,9 +417,11 @@ public class ApiController : ControllerBase
 
     /// <summary>
     /// Guarda a cosa ha partecipato l'utente
+    ///METODO CON RICHIESTA DI AUTENTICAZIONE
     /// </summary>
     /// <param name="userId">Id dell'utente</param>
     /// <returns>la lista delle partecipazioni</returns>
+    [Authorize(Roles = "User")]
     [HttpGet("participations/user/{userId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -424,9 +458,11 @@ public class ApiController : ControllerBase
 
     /// <summary>
     /// Piazza una revisione
+    ///METODO CON RICHIESTA DI AUTENTICAZIONE
     /// </summary>
     /// <param name="model">modello della recensione</param>
     /// <returns>Aggiorna la recensione</returns>
+    [Authorize(Roles = "User")]
     [HttpPut("participations/review")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -475,8 +511,10 @@ public class ApiController : ControllerBase
 
     /// <summary>
     /// Aggiunge la partecipazione di un certo User ad un evento
+    ///METODO CON RICHIESTA DI AUTENTICAZIONE
     /// </summary>
     /// <returns>aggiunta partecipazione dell utente all'evento</returns>
+    [Authorize(Roles = "User")]
     [HttpPost("participations/confirm")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -519,9 +557,11 @@ public class ApiController : ControllerBase
 
     /// <summary>
     /// Modifica le informazioni di un utente
+    ///METODO CON RICHIESTA DI AUTENTICAZIONE
     /// </summary>
     /// <param name="dto">Una parte delle informazioni dell0 user, quelle modificabili</param>
     /// <returns>Dati utente modificati</returns>
+    [Authorize(Roles = "User")]
     [HttpPost("EditUser")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

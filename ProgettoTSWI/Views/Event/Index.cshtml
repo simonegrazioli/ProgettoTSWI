@@ -178,6 +178,9 @@
                 <div class="card-body">
                     <h5 class="card-title">@evento.EventName</h5>
                     <p class="card-text"><small>@evento.EventDate.ToString("d") - @evento.EventLocation</small></p>
+
+                    
+
                     <a asp-controller="Event" asp-action="InfoEvent" asp-route-idEvent="@evento.EventId" 
                                class="btn btn-primary">
                                Info
