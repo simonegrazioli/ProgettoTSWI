@@ -11,10 +11,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        /* Stili globali */
-        :root {
+
+    @if (ViewData["Title"] != "Admin" && ViewData["Title"] != "ManageEvents" && ViewData["Title"] != "UpdateEvent" && ViewData["Title"] != "ApproveRequests" && ViewData["Title"] != "DeleteReviews" && ViewData["Title"] != "DeleteUsers")
+    {
+        <style>
+            /* Stili globali */
+            :root {
             --primary: #FFFFFF; /* Bianco */
             --secondary: #000000;
             --accent: #00B4D8; /* Azzurro chiaro */
@@ -22,85 +24,86 @@
             --dark-bg: #111111;
             --light-bg: #1E1E1E;
             --alert-bg: #F8F9FA; /* Grigio chiarissimo per alert */
-        }
-        
-        body {
+            }
+
+            body {
             font-family: 'Montserrat', sans-serif;
             color: var(--text);
             min-height: 100vh;
-        }
-        
-        /* Navbar nera con bottoni azzurrini */
-        .navbar {
+            }
+
+            /* Navbar nera con bottoni azzurrini */
+            .navbar {
             background-color: var(--secondary) !important;
             padding: 15px 0;
             border-bottom: 1px solid var(--accent);
-        }
-        
-        .navbar-nav .btn {
+            }
+
+            .navbar-nav .btn {
             border: 1px solid var(--accent);
             color: var(--accent);
             background-color: transparent;
             transition: all 0.3s ease;
             margin: 0 5px;
-        }
-        
-        .navbar-nav .btn:hover {
+            }
+
+            .navbar-nav .btn:hover {
             background-color: rgba(0, 180, 216, 0.1);
             transform: translateY(-2px);
-        }
-        
-        .btn-outline-primary {
+            }
+
+            .btn-outline-primary {
             color: var(--accent);
             border-color: var(--accent);
-        }
-        
-        .btn-outline-success {
+            }
+
+            .btn-outline-success {
             color: #28a745;
             border-color: #28a745;
-        }
-        
-        .btn-outline-danger {
+            }
+
+            .btn-outline-danger {
             color: #dc3545;
             border-color: #dc3545;
-        }
-        
-        /* Alert grigio chiarissimo */
-        .alert {
+            }
+
+            /* Alert grigio chiarissimo */
+            .alert {
             background-color: var(--alert-bg) !important;
             color: #212529 !important;
             border-left: 4px solid var(--accent);
             border-radius: 0;
-        }
-        
-        .alert-warning {
+            }
+
+            .alert-warning {
             border-left-color: #FFC107;
-        }
-        
-        .alert-info {
+            }
+
+            .alert-info {
             border-left-color: var(--accent);
-        }
-        
-        /* Effetti hover per card immagini */
-        .img-card-btn:hover img { 
+            }
+
+            /* Effetti hover per card immagini */
+            .img-card-btn:hover img { 
             opacity: 1 !important; 
             transform: scale(1.03); 
-        }
-        
-        .img-card-btn:hover { 
+            }
+
+            .img-card-btn:hover { 
             transform: translateY(-3px) !important; 
-        }
-        
-        .img-card-btn { 
+            }
+
+            .img-card-btn { 
             transition: transform 0.3s ease !important; 
-        }
-        
-        /* Footer */
-        .footer {
+            }
+
+            /* Footer */
+            .footer {
             background-color: var(--secondary);
             border-top: 1px solid #333;
-        }
-    </style>
+            }
+        </style>
+    }
 </head>
 
 @{
@@ -126,6 +129,8 @@
 
             <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                 <ul class="navbar-nav d-flex flex-wrap justify-content-center align-items-center gap-3">
+                @if (ViewData["Title"] != "Admin" && ViewData["Title"] != "ManageEvents" && ViewData["Title"] != "UpdateEvent" && ViewData["Title"] != "ApproveRequests" && ViewData["Title"] != "DeleteReviews" && ViewData["Title"] != "DeleteUsers")
+                {
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
                         @if(!IsCurrentPage("Home", "Index"))
@@ -183,6 +188,7 @@
                             </li>
                         }
                     }
+                }
                 </ul>
             </div>
         </div>

@@ -54,12 +54,6 @@ public class AccountController : Controller
         return View();
     }
 
-    [Authorize(Roles = "User")] // Solo per user
-    public IActionResult AfterLog()
-    {
-        return View();
-    }
-
     // Chiamata API per autenticazione utente
     [HttpPost]
     [ValidateAntiForgeryToken]

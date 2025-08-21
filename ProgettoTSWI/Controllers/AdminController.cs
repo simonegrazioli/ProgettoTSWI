@@ -48,7 +48,7 @@ namespace ProgettoTSWI.Controllers
             var json = await response.Content.ReadAsStringAsync();
             var unapprovedEvents = JsonConvert.DeserializeObject<List<Event>>(json);
 
-            return View("../AdminPages/ApproveRequests", unapprovedEvents);
+            return View("../AdminPages/ApproveRequest", unapprovedEvents);
         }
 
         // Chiamata per ricevere le partecipazioni con reviews non nulle o non vuote e reindirizzamento alla view DeleteReviews
@@ -149,14 +149,13 @@ namespace ProgettoTSWI.Controllers
 
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             // Elimina il cookie e tutti i claims dell'utente
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             // Redirect a Index
-            return RedirectToAction("Index", "AdminHome");
+            return RedirectToAction("Index", "Home");
         }
 
     }
