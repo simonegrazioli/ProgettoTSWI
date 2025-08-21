@@ -1,0 +1,65 @@
+﻿﻿
+@model List<ProgettoTSWI.Models.Event>
+
+@{
+    ViewData["Title"] = "ApproveRequests";
+}
+
+
+<div class="container mt-5" style="max-width: 400px;">
+    <h1>Approve Request</h1>
+    <p>Seleziona gli eventi che vuoi approvare, quindi con il tasto "Approve selected" lo stato degli eventi andrà a "Confirmed"</p>
+</div>
+
+@if (Model == null || Model.Count() == 0)
+{
+    <div class="alert alert-warning">No request available</div>
+}
+
+<form asp-action="ConfirmRefuseRequest" asp-controller="AdminApproveRequest" method="post">
+
+    <div class="row">
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="selectedRequests" value="@Model[i].EventId" id="@Model[i].EventId">
+                            <label class="form-check-label" for="@Model[i].EventId">
+                                <strong>@Model[i].EventName</strong>
+                            </label>
+                        </div>
+
+                        <div class="event-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Data:</span>
+                                <span class="detail-value">@Model[i].EventDate.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+
+                            <div class="detail-row">
+                                <span class="detail-label">Luogo:</span>
+                                <span class="detail-value">@Model[i].EventLocation</span>
+                            </div>
+
+                            <div class="detail-row">
+                                <span class="detail-label">Descrizione:</span>
+                                <span class="detail-value">@Model[i].Description</span>
+                            </div>
+
+                            <div class="detail-row">
+                                <span class="detail-label">Prezzo:</span>
+                                <span class="detail-value">@(Model[i].EventPrice?.ToString("C") ?? "Gratuito")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="form-group">
+        <button type="submit" name="actionType" value="approve" class="btn btn-success">Approve selected</button>
+        <button type="submit" name="actionType" value="refuse" class="btn btn-danger">Refuse selected</button>
+        <a asp-action="Back" asp-controller="AdminApproveRequest" class="btn btn-secondary">Annulla</a>
+    </div>
+</form>

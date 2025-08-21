@@ -62,7 +62,7 @@ public class AccountController : Controller
 
     // Chiamata API per autenticazione utente
     [HttpPost]
-    //[ValidateAntiForgeryToken]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(string Email, string Password)
     {
         try
@@ -101,7 +101,7 @@ public class AccountController : Controller
 
                 if (userInfo.Ruolo == "Admin")
                 {
-                    return RedirectToAction("Admin", "Home");
+                    return View("~/Views/Home/Admin.cshtml");
                 }
                 else //si assume che se un utente non è admin, è per forza user
                 {   
@@ -129,7 +129,7 @@ public class AccountController : Controller
     }
 
 
-[HttpGet]
+    [HttpGet]
     public IActionResult Register()
     {
         return View(new User()); 

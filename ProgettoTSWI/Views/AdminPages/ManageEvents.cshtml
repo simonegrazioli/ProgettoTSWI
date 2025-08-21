@@ -1,0 +1,128 @@
+﻿@model List<ProgettoTSWI.Models.Event>﻿
+@{
+    ViewData["Title"] = "ManageEvents";
+}
+
+<div class="container mt-5">
+    <h1 class="mb-4">Manage Events</h1>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    <div class="d-flex justify-content-end">
+        <a asp-action="Back" asp-controller="AdminApproveRequest" class="btn btn-secondary">Indietro</a>
+    </div>
+    @* Form di Inserimento *@
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5>Add New Event</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="InsertEvent" asp-controller="AdminManageEvent" method="post">
+
+                <div class="form-group mb-3">
+                    <label for="eventName">Event Name</label>
+                    <input type="text" class="form-control" id="eventName" name="EventName" maxlength="100" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="eventDate">Event Date</label>
+                    <input type="datetime-local" class="form-control" id="eventDate" name="EventDate" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="eventPrice">Event Price</label>
+                    <input type="number" min="0" step="0.01" class="form-control" id="eventPrice" name="EventPrice" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="eventLocation">Location</label>
+                    <input type="text" class="form-control" id="eventLocation" name="EventLocation" maxlength="200" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="Description">Description</label>
+                    <input type="text" class="form-control" id="Description" name="Description" maxlength="200" required>
+                </div>
+
+                <button type="submit" class="btn btn-success">Add Event</button>
+            </form>
+        </div>
+    </div>
+
+
+
+
+
+    @if (Model == null || Model.Count() == 0)
+    {
+        <div class="alert alert-warning">No confirmed events available</div>
+    }
+    else
+    {
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5>Edit Event</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="PreEditEvent" asp-controller="AdminManageEvent" method="post">
+                    <div class="form-group mb-3">
+                        <label>Select Event to Edit</label>
+                        <select name="eventId" class="form-control" required>
+                            <option value="">Select an Event</option>
+                            @foreach (Event evt in Model)
+                            {
+                                <option value="@evt.EventId">
+                                    @evt.EventName - @evt.EventDate.ToString("dd/MM/yyyy HH:mm")
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-warning">Update Event</button>
+                </form>
+            </div>
+        </div>
+
+    }
+
+    @* Form di Eliminazione *@
+
+
+
+    @if (Model == null || Model.Count() == 0)
+    {
+        <div class="alert alert-warning">No confirmed events available</div>
+    }
+    else
+    {
+
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-dark">
+                <h5>Edit Event</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="DeleteEvent" asp-controller="AdminManageEvent" method="post">
+                    <div class="form-group mb-3">
+                        <label>Seleziona uno o più eventi da eliminare</label>
+                        <div class="form-check">
+                            @foreach (Event evt in Model)
+                            {
+                                <div class="form-check mb-2">
+                                    <input type="checkbox" class="form-check-input" name="eventIds" value="@evt.EventId" id="evt_@evt.EventId" />
+                                    <label class="form-check-label" for="evt_@evt.EventId">
+                                        <strong>@evt.EventName</strong><br />
+                                        <span><strong>Data:</strong> @evt.EventDate.ToString("dd/MM/yyyy HH:mm")</span><br />
+                                        <span><strong>Prezzo:</strong> @(evt.EventPrice.HasValue ? evt.EventPrice.Value.ToString("C") : "Gratuito")</span><br />
+                                        <span><strong>Luogo:</strong> @evt.EventLocation</span><br />
+                                        <span><strong>Descrizione:</strong> @evt.Description</span>
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-danger">Delete Selected Events</button>
+                </form>
+            </div>
+        </div>
+
+    }
+
+</div>
