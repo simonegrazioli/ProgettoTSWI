@@ -1,0 +1,56 @@
+﻿﻿
+@model ProgettoTSWI.Models.Event
+@{
+    ViewData["Title"] = "UpdateEvent";
+}
+
+@if (Model == null)
+{
+    <div class="alert alert-warning">The selected event is no longer available</div>
+}
+else
+{
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h3>Modifica Evento</h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="EditEvent" asp-controller="AdminManageEvent" method="post">
+                    <input type="hidden" asp-for="EventId" />
+
+                    <div class="form-group mb-3">
+                        <label asp-for="EventName">Nome Evento*</label>
+                        <input asp-for="EventName" class="form-control" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="EventDate">Data e Ora*</label>
+                        <input asp-for="EventDate" type="datetime-local" class="form-control" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="EventLocation">Luogo*</label>
+                        <input asp-for="EventLocation" class="form-control"  />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Description">Description</label>
+                        <input asp-for="Description" class="form-control" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="EventPrice">Prezzo</label>
+                        <input asp-for="EventPrice" class="form-control"/>
+                    </div>
+
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success">Salva</button>
+                        <a asp-action="ManageEvents" asp-controller="Admin" class="btn btn-secondary">Annulla</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}

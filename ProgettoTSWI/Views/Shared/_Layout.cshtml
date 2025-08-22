@@ -1,0 +1,214 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ProgettoTSWI</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ProgettoTSWI.styles.css" asp-append-version="true" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    @if (ViewData["Title"] != "Admin" && ViewData["Title"] != "ManageEvents" && ViewData["Title"] != "UpdateEvent" && ViewData["Title"] != "ApproveRequests" && ViewData["Title"] != "DeleteReviews" && ViewData["Title"] != "DeleteUsers")
+    {
+        <style>
+            /* Stili globali */
+            :root {
+            --primary: #FFFFFF; /* Bianco */
+            --secondary: #000000;
+            --accent: #00B4D8; /* Azzurro chiaro */
+            --text: #F1F1F1;
+            --dark-bg: #111111;
+            --light-bg: #1E1E1E;
+            --alert-bg: #F8F9FA; /* Grigio chiarissimo per alert */
+            }
+
+            body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text);
+            min-height: 100vh;
+            }
+
+            /* Navbar nera con bottoni azzurrini */
+            .navbar {
+            background-color: var(--secondary) !important;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--accent);
+            }
+
+            .navbar-nav .btn {
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            background-color: transparent;
+            transition: all 0.3s ease;
+            margin: 0 5px;
+            }
+
+            .navbar-nav .btn:hover {
+            background-color: rgba(0, 180, 216, 0.1);
+            transform: translateY(-2px);
+            }
+
+            .btn-outline-primary {
+            color: var(--accent);
+            border-color: var(--accent);
+            }
+
+            .btn-outline-success {
+            color: #28a745;
+            border-color: #28a745;
+            }
+
+            .btn-outline-danger {
+            color: #dc3545;
+            border-color: #dc3545;
+            }
+
+            /* Alert grigio chiarissimo */
+            .alert {
+            background-color: var(--alert-bg) !important;
+            color: #212529 !important;
+            border-left: 4px solid var(--accent);
+            border-radius: 0;
+            }
+
+            .alert-warning {
+            border-left-color: #FFC107;
+            }
+
+            .alert-info {
+            border-left-color: var(--accent);
+            }
+
+            /* Effetti hover per card immagini */
+            .img-card-btn:hover img { 
+            opacity: 1 !important; 
+            transform: scale(1.03); 
+            }
+
+            .img-card-btn:hover { 
+            transform: translateY(-3px) !important; 
+            }
+
+            .img-card-btn { 
+            transition: transform 0.3s ease !important; 
+            }
+
+            /* Footer */
+            .footer {
+            background-color: var(--secondary);
+            border-top: 1px solid #333;
+            }
+        </style>
+    }
+</head>
+
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+
+@functions {
+    public bool IsCurrentPage(string controller, string action)
+    {
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+        return currentController == controller && currentAction == action;
+    }
+}
+
+<body>
+    <header class="navbar navbar-expand-lg navbar-dark shadow-sm py-3">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+                <ul class="navbar-nav d-flex flex-wrap justify-content-center align-items-center gap-3">
+                @if (ViewData["Title"] != "Admin" && ViewData["Title"] != "ManageEvents" && ViewData["Title"] != "UpdateEvent" && ViewData["Title"] != "ApproveRequests" && ViewData["Title"] != "DeleteReviews" && ViewData["Title"] != "DeleteUsers")
+                {
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        @if(!IsCurrentPage("Home", "Index"))
+                        {
+                            <li class="nav-item">
+                                <a class="btn btn-outline-primary px-4" href="@Url.Action("Index", "Event")">
+                                    <i class="fas fa-calendar-alt me-2"></i>Eventi
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="btn btn-outline-primary px-4" href="@Url.Action("MyEvent", "Event")">
+                                    <i class="fas fa-list me-2"></i>Le mie proposte
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="btn btn-outline-primary px-4" href="@Url.Action("Index", "User")">
+                                    <i class="fas fa-user me-2"></i>Profilo
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger px-4">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </button>
+                                </form>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="btn btn-outline-success px-4" asp-controller="Event" asp-action="CreateForm">
+                                    <i class="fas fa-plus-circle me-2"></i>Proponi Evento
+                                </a>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        @if (!IsCurrentPage("Event", "Index"))
+                        {
+                            <li class="nav-item">
+                                <a class="btn btn-outline-primary px-4" href="@Url.Action("Index", "Event")">
+                                    <i class="fas fa-calendar-alt me-2"></i>Eventi
+                                </a>
+                            </li>
+                        }
+                        @if (!IsCurrentPage("Account", "Login") && !IsCurrentPage("Account", "Index"))
+                        {
+                            <li class="nav-item">
+                                <a class="btn btn-outline-primary px-4" href="@Url.Action("Index", "Home")">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Accedi
+                                </a>
+                            </li>
+                        }
+                    }
+                }
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer text-muted py-3">
+        <div class="container text-center">
+            &copy; 2025 - ProgettoTSWI
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

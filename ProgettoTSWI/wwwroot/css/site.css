@@ -1,0 +1,114 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.btn {
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
+}
+
+.btn:hover {
+    box-shadow: 0 0 8px rgba(0, 255, 170, 0.5); /* glow verde */
+}
+
+.navbar .btn {
+    padding: 0.5rem 1rem;
+}
+
+/* Pulsanti visivamente coerenti */
+.navbar .btn {
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
+    padding: 0.5rem 1.5rem;
+}
+
+    /* Effetto glow al passaggio */
+    .navbar .btn:hover {
+        box-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
+    }
+
+/* Spazio tra tutti gli elementi nav */
+.navbar-nav > .nav-item {
+    margin-right: 0.75rem;
+}
+
+    /* Rimuove margine a destra dall'ultimo */
+    .navbar-nav > .nav-item:last-child {
+        margin-right: 0;
+    }
+
+.form-wrapper {
+    max-width: 600px; /* limite massimo larghezza */
+    width: 100%; /* adattivo per mobile */
+    margin: 0 auto; /* centrato orizzontalmente */
+    padding: 2rem; /* spazio interno */
+    background-color: #f9f9f9; /* opzionale: sfondo chiaro */
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+    /* Per evitare che gli input occupino troppo spazio */
+    .form-wrapper input,
+    .form-wrapper select,
+    .form-wrapper textarea {
+        width: 100%;
+    }
+
+    /* Se vuoi anche una distanza verticale tra i campi */
+    .form-wrapper .form-group {
+        margin-bottom: 1rem;
+    }
+
+.card {
+    border-radius: 1rem;
+    background-color: #f3f3f3;
+}
+
+.list-group-item {
+    background-color: transparent;
+    border: none;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.list-group-item {
+    transition: box-shadow 0.2s ease;
+}
+
+    .list-group-item:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+.login-background {
+    background: url('/img/78722.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.login-card {
+    background-color: rgba(255, 255, 255, 0.9); /* semi-trasparente */
+    backdrop-filter: blur(4px); /* opzione elegante */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+}
+
+
+
+

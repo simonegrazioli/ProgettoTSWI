@@ -1,0 +1,209 @@
+﻿<!-- MY EVENTS PAGE -->
+@model List<Event>
+@{
+    ViewData["Title"] = "I Miei Eventi";
+}
+
+<style>
+    
+    body {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7));            
+        background-size: cover;
+    }
+
+    .event-card {
+        height: 100%;
+        background-color: rgba(30, 30, 30, 0.9);
+    }
+
+    .event-card:hover {
+        background-color: rgba(50, 50, 50, 0.9);
+    }
+
+    .card-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 15px; /* Spaziatura tra i bottoni */
+        margin-top: 20px;
+    }
+
+    .card-buttons .btn {
+        width: 100%;
+        margin: 0;
+    }
+
+    .price-tag {
+        font-weight: bold;
+        color: var(--accent);
+        font-size: 1.1rem;
+    }
+
+    :root {
+        --primary: #7fffd4; /* Giallo-arancio */
+        --secondary: #000000;
+        --accent: #FFFFFF;
+        --text: #F1F1F1;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+    }
+    
+    body {
+        background-color: var(--secondary);
+        font-family: 'Montserrat', sans-serif;
+        color: var(--text);
+    }
+    
+    .alert {
+        color:#F8F9FA ;
+        border-radius: 0;
+        border-left: 4px solid var(--secondary);
+        background-color: #111;
+    }
+    
+    .alert-warning {
+        border-left-color: var(--warning);
+    }
+    
+    h1 {
+        color: var(--accent);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    h1:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background-color: var(--primary);
+    }
+    
+    .card {
+        background-color: #111;
+        border: 1px solid #333;
+        border-radius: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(127,255,212, 0.2);
+        border-color: var(--primary);
+    }
+    
+    .card-title {
+        color: var(--accent);
+        font-weight: 700;
+    }
+    
+    .card-text {
+        color: #999;
+    }
+    
+    .btn {
+        border-radius: 0;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary);
+        color: var(--secondary);
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        background-color: #f0f8ff;
+        color: var(--secondary);
+        transform: translateY(-3px);
+    }
+    
+    .btn-success {
+        background-color: var(--success);
+        color: white;
+    }
+    
+    .btn-danger {
+        background-color: var(--danger);
+        color: white;
+    }
+    
+    .badge {
+        border-radius: 0;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+    
+    .border-success {
+        border-color: var(--success) !important;
+    }
+    
+    .border-warning {
+        border-color: var(--warning) !important;
+    }
+    
+    .bg-success {
+        background-color: var(--success) !important;
+    }
+    
+    .bg-warning {
+        background-color: var(--warning) !important;
+    }
+</style>
+
+<div class="container py-5">
+    <h1 class="mb-4">Eventi Proposti da te</h1>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-info mb-4">@TempData["Message"]</div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>Non hai ancora proposto eventi.
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var evento in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card event-card @(evento.IsApproved ? "border-success" : "border-warning")">
+                        <div class="card-body">
+                            <h5 class="card-title">@evento.EventName</h5>
+                            <p class="card-text price-tag">
+                                @(evento.EventPrice?.ToString("C") ?? "Gratis")
+                            </p>
+                            <p class="card-text text-muted">
+                                <small>
+                                    <i class="far fa-calendar-alt me-2"></i>@evento.EventDate.ToString("d")<br>
+                                    <i class="fas fa-map-marker-alt me-2"></i>@evento.EventLocation
+                                </small>
+                            </p>
+                            <span class="status-badge badge @(evento.IsApproved ? "bg-success" : "bg-warning")">
+                                @(evento.IsApproved ? "Approvato" : "In revisione")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="text-center mt-4">
+        <a asp-controller="Event" asp-action="CreateForm" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus-circle me-2"></i>Proponi un nuovo evento
+        </a>
+    </div>
+</div>

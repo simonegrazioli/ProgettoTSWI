@@ -1,0 +1,215 @@
+﻿@model List<Event>
+
+<style>
+
+    body {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                    url('https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    .event-card {
+        height: 100%;
+        background-color: rgba(30, 30, 30, 0.9);
+    }
+
+    .event-card:hover {
+        background-color: rgba(50, 50, 50, 0.9);
+    }
+
+    .card-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 15px; /* Spaziatura tra i bottoni */
+        margin-top: 20px;
+    }
+
+    .card-buttons .btn {
+        width: 100%;
+        margin: 0;
+    }
+
+    .price-tag {
+        font-weight: bold;
+        color: var(--accent);
+        font-size: 1.1rem;
+    }
+
+    :root {
+        --primary: #7fffd4; /* Giallo-arancio */
+        --secondary: #000000;
+        --accent: #FFFFFF;
+        --text: #F1F1F1;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+    }
+    
+    body {
+        background-color: var(--secondary);
+        font-family: 'Montserrat', sans-serif;
+        color: var(--text);
+    }
+    
+    .alert {
+        color:#F8F9FA ;
+        border-radius: 0;
+        border-left: 4px solid var(--secondary);
+        background-color: #111;
+    }
+    
+    .alert-warning {
+        border-left-color: var(--warning);
+    }
+    
+    h1 {
+        color: var(--accent);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    h1:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background-color: var(--primary);
+    }
+    
+    .card {
+        background-color: #111;
+        border: 1px solid #333;
+        border-radius: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(127,255,212, 0.2);
+        border-color: var(--primary);
+    }
+    
+    .card-title {
+        color: var(--accent);
+        font-weight: 700;
+    }
+    
+    .card-text {
+        color: #999;
+    }
+    
+    .btn {
+        border-radius: 0;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary);
+        color: var(--secondary);
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        background-color: #f0f8ff;
+        color: var(--secondary);
+        transform: translateY(-3px);
+    }
+    
+    .btn-success {
+        background-color: var(--success);
+        color: white;
+    }
+    
+    .btn-danger {
+        background-color: var(--danger);
+        color: white;
+    }
+    
+    .badge {
+        border-radius: 0;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+    
+    .border-success {
+        border-color: var(--success) !important;
+    }
+    
+    .border-warning {
+        border-color: var(--warning) !important;
+    }
+    
+    .bg-success {
+        background-color: var(--success) !important;
+    }
+    
+    .bg-warning {
+        background-color: var(--warning) !important;
+    }
+</style>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">@TempData["Message"]</div>
+}
+
+<h1>Eventi disponibili</h1>
+
+@if (!User.Identity.IsAuthenticated)
+{
+    <div class="alert alert-warning mb-4">
+        Autenticati per partecipare e recensire gli eventi
+    </div>
+}
+
+<div class="row">
+    @foreach (var evento in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">@evento.EventName</h5>
+                    <p class="card-text"><small>@evento.EventDate.ToString("d") - @evento.EventLocation</small></p>
+
+                    
+
+                    <a asp-controller="Event" asp-action="InfoEvent" asp-route-idEvent="@evento.EventId" 
+                               class="btn btn-primary">
+                               Info
+                    </a>
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        @if (evento.UserPartecipa)
+                        {
+                            <a asp-controller="Event" asp-action="Review" asp-route-id="@evento.EventId" 
+                               class="btn btn-primary">
+                               Recensisci
+                            </a>
+                            
+                            <form asp-controller="Event" asp-action="NonPartecipa" asp-route-eventId="@evento.EventId" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-danger">Non partecipo più</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-controller="Event" asp-action="Partecipa" asp-route-id="@evento.EventId" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-success">Partecipa</button>
+                            </form>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

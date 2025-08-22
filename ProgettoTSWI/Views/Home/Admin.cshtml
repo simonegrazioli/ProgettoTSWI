@@ -1,0 +1,35 @@
+﻿﻿@{
+    ViewData["Title"] = "Admin";
+}
+<div class="d-flex justify-content-end">
+    <form asp-controller="Admin" asp-action="Logout" method="post" class="d-inline">
+        <button type="submit" class="btn btn-outline-danger px-4">Logout</button>
+    </form>
+</div>
+
+<div class="container mt-5" style="max-width: 400px;">
+    <h2>You can perform the following functions as an admin</h2>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    else if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="list-group mt-4">
+        <a asp-controller="Admin" asp-action="ManageEvents" class="list-group-item list-group-item-action">
+            Manage Events
+        </a>
+        <a asp-controller="Admin" asp-action="ApproveRequests" class="list-group-item list-group-item-action">
+            Approve Requests
+        </a>
+        <a asp-controller="Admin" asp-action="DeleteReviews" class="list-group-item list-group-item-action">
+            Delete Reviews
+        </a>
+        <a asp-controller="Admin" asp-action="DeleteUsers" class="list-group-item list-group-item-action">
+            Delete Users
+        </a>
+    </div>
+</div>

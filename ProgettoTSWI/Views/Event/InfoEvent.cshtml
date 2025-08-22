@@ -1,0 +1,270 @@
+﻿@model ProgettoTSWI.Models.EventWithParticipants
+@{
+    var evt = Model?.Event;
+    var participants = Model?.ParticipantsAka ?? new List<string>();
+}
+<style>
+
+    /* Aggiungi questa regola CSS */
+    .list-group-item {
+        background-color: rgba(60, 60, 60, 0.7); /* Grigio scuro semitrasparente */
+        color: var(--accent); /* Testo bianco */
+        border-color: #444; /* Bordo più chiaro */
+        transition: all 0.3s ease;
+    }
+
+    .list-group-item:hover {
+        background-color: rgba(80, 80, 80, 0.7); /* Effetto hover più chiaro */
+    }
+
+    /* Modifica anche lo stile dell'icona utente */
+    .list-group-item .fa-user-circle {
+        color: var(--primary); /* Icona colorata con il colore primario */
+    }
+
+    body {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                    url('/img/78612.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    .event-card {
+        height: 100%;
+        background-color: rgba(30, 30, 30, 0.9);
+    }
+
+    .event-card:hover {
+        background-color: rgba(50, 50, 50, 0.9);
+    }
+
+    .card-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 15px; /* Spaziatura tra i bottoni */
+        margin-top: 20px;
+    }
+
+    .card-buttons .btn {
+        width: 100%;
+        margin: 0;
+    }
+
+    .price-tag {
+        font-weight: bold;
+        color: var(--accent);
+        font-size: 1.1rem;
+    }
+
+    :root {
+        --primary: #7fffd4; /* Giallo-arancio */
+        --secondary: #000000;
+        --accent: #FFFFFF;
+        --text: #F1F1F1;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+    }
+    
+    body {
+        background-color: var(--secondary);
+        font-family: 'Montserrat', sans-serif;
+        color: var(--text);
+    }
+    
+    .alert {
+        color:#F8F9FA ;
+        border-radius: 0;
+        border-left: 4px solid var(--secondary);
+        background-color: #111;
+    }
+    
+    .alert-warning {
+        border-left-color: var(--warning);
+    }
+    
+    h1 {
+        color: var(--accent);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    h1:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background-color: var(--primary);
+    }
+    
+    .card {
+        background-color: #111;
+        border: 1px solid #333;
+        border-radius: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(127,255,212, 0.2);
+        border-color: var(--primary);
+    }
+    
+    .card-title {
+        color: var(--accent);
+        font-weight: 700;
+    }
+    
+    .card-text {
+        color: #999;
+    }
+    
+    .btn {
+        border-radius: 0;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary);
+        color: var(--secondary);
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        background-color: #f0f8ff;
+        color: var(--secondary);
+        transform: translateY(-3px);
+    }
+    
+    .btn-success {
+        background-color: var(--success);
+        color: white;
+    }
+    
+    .btn-danger {
+        background-color: var(--danger);
+        color: white;
+    }
+    
+    .badge {
+        border-radius: 0;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+    
+    .border-success {
+        border-color: var(--success) !important;
+    }
+    
+    .border-warning {
+        border-color: var(--warning) !important;
+    }
+    
+    .bg-success {
+        background-color: var(--success) !important;
+    }
+    
+    .bg-warning {
+        background-color: var(--warning) !important;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            @if(evt != null)
+            {
+                <h1 class="h4 mb-0">@evt.EventName</h1>
+            }
+            else
+            {
+                <h1 class="h4 mb-0">Evento non disponibile</h1>
+            }
+        </div>
+        
+        <div class="card-body">
+            @if(evt != null)
+            {
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="far fa-calendar-alt me-2 text-primary"></i>
+                            <span><strong>Data:</strong> @evt.EventDate.ToString("dd/MM/yyyy HH:mm")</span>
+                        </div>
+                        
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-tag me-2 text-primary"></i>
+                            <span><strong>Prezzo:</strong> 
+                                @if(evt.EventPrice.HasValue && evt.EventPrice > 0)
+                                {
+                                    @evt.EventPrice.Value.ToString("C")
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Gratis</span>
+                                }
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                            <span><strong>Luogo:</strong> @evt.EventLocation</span>
+                        </div>
+                        
+                        
+                    </div>
+                </div>
+
+                @if(!string.IsNullOrEmpty(evt.Description))
+                {
+                    <div class="alert alert-light border mb-4">
+                        <h3 class="h5"><i class="fas fa-align-left me-2"></i>Descrizione</h3>
+                        <p class="mb-0">@evt.Description</p>
+                    </div>
+                }
+            }
+            
+            <div class="mt-4">
+                <h2 class="h5 border-bottom pb-2">
+                    <i class="fas fa-users me-2"></i>Partecipanti
+                    <span class="badge bg-primary ms-2">@participants.Count</span>
+                </h2>
+                
+                @if(participants.Any())
+                {
+                    <div class="list-group mt-3">
+                        @foreach(var aka in participants)
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>@(aka ?? "Anonimo")</span>
+                                <i class="fas fa-user-circle text-muted"></i>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-info-circle me-2"></i>Nessun partecipante ancora registrato.
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <div class="card-footer bg-light">
+            <a href="@Url.Action("ViewReviews", "Event", new { eventId = evt.EventId })" 
+               class="btn btn-outline-info">
+                <i class="fas fa-star me-2"></i>Vedi Recensioni
+            </a>
+        </div>
+    </div>
+</div>
