@@ -56,6 +56,15 @@ namespace ProgettoTSWI.Controllers
 
             return Ok(confirmedEvents);
         }
+
+        // Ritorno tutti gli eventi confermati
+        [HttpGet("getUserP")]
+        public async Task<IActionResult> GetUserP()
+        {
+            var userP = await _context.Users.Where(us => us.Ruolo == "User" && !_context.Participations.Any(p => p.ParticipationUserId == us.Id)).ToListAsync();
+
+            return Ok(userP);
+        }
     }
 
 

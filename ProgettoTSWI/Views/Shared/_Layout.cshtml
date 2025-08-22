@@ -12,7 +12,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    @if (ViewData["Title"] != "Admin" && ViewData["Title"] != "ManageEvents" && ViewData["Title"] != "UpdateEvent" && ViewData["Title"] != "ApproveRequests" && ViewData["Title"] != "DeleteReviews" && ViewData["Title"] != "DeleteUsers")
+    @if (ViewData["Title"] != "Admin" && ViewData["Title"] != "PromoteUser" && ViewData["Title"] != "ManageEvents" && ViewData["Title"] != "UpdateEvent" && ViewData["Title"] != "ApproveRequests" && ViewData["Title"] != "DeleteReviews" && ViewData["Title"] != "DeleteUsers")
     {
         <style>
             /* Stili globali */
@@ -129,7 +129,7 @@
 
             <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                 <ul class="navbar-nav d-flex flex-wrap justify-content-center align-items-center gap-3">
-                @if (ViewData["Title"] != "Admin" && ViewData["Title"] != "ManageEvents" && ViewData["Title"] != "UpdateEvent" && ViewData["Title"] != "ApproveRequests" && ViewData["Title"] != "DeleteReviews" && ViewData["Title"] != "DeleteUsers")
+                    @if (ViewData["Title"] != "Admin" && ViewData["Title"] != "PromoteUser" && ViewData["Title"] != "ManageEvents" && ViewData["Title"] != "UpdateEvent" && ViewData["Title"] != "ApproveRequests" && ViewData["Title"] != "DeleteReviews" && ViewData["Title"] != "DeleteUsers")
                 {
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {

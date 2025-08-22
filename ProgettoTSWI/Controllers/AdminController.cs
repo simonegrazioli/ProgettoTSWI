@@ -146,6 +146,37 @@ namespace ProgettoTSWI.Controllers
             return View("../AdminPages/ManageEvents", confEvents);
         }
 
+        // Chiamata per ricevere gli utenti senza partecipazioni, quindi potenzialmente promuovibili a Admin
+        public async Task<IActionResult> PromoteUser()
+        {
+            var clientHandler = new HttpClientHandler();
+            var cookieContainer = new CookieContainer();
+
+            // Prendi il cookie di autenticazione attuale
+            if (Request.Cookies.TryGetValue("TempAuthCookie", out var authCookieValue))
+            {
+                cookieContainer.Add(new Uri("https://localhost:7087"), new Cookie("TempAuthCookie", authCookieValue));
+            }
+
+            clientHandler.CookieContainer = cookieContainer;
+
+            var client = new HttpClient(clientHandler);
+
+
+
+            var response = await client.GetAsync("https://localhost:7087/api/AdminAPI/getUserP");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return View("Error");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var userP = JsonConvert.DeserializeObject<List<User>>(json);
+
+            return View("../AdminPages/PromoteUser", userP);
+        }
+
 
 
         [HttpPost]
