@@ -33,7 +33,6 @@ namespace ProgettoTSWI.Controllers
         [HttpPost]
         public async Task<IActionResult> PromoteUser(int[] selectedUser)
         {
-            Console.WriteLine(selectedUser);
             if (selectedUser == null)
             {
                 TempData["ErrorMessage"] = "Nessun utente selezionato.";
@@ -65,7 +64,6 @@ namespace ProgettoTSWI.Controllers
             );//metto le info da passare alla richiesta nel body in formato json
 
             var jsonString = await jsonContent.ReadAsStringAsync();
-            Console.WriteLine(jsonString);
             HttpResponseMessage response;
 
             response = await client.PostAsync("https://localhost:7087/api/AdminPromoteUserAPI/Promote", jsonContent);
