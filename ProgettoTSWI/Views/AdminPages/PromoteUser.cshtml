@@ -3,6 +3,76 @@
 @{
     ViewData["Title"] = "PromoteUser";
 }
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Users</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Stili globali */
+        :root {
+            --primary: #FFFFFF; /* Bianco */
+            --secondary: #000000;
+            --accent: #00B4D8; /* Azzurro chiaro */
+            --text: #FFF;
+            --dark-bg: #111111;
+            --light-bg: #1E1E1E;
+            --alert-bg: #F8F9FA; /* Grigio chiarissimo per alert */
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: #FFF;
+            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('https://www.pixelstalk.net/wp-content/uploads/2016/06/Free-Images-HD-Dance-Wallpapers.jpg') fixed center/cover;
+        }
+
+
+
+        .alert-warning {
+            border-left-color: #FFC107;
+        }
+
+
+        .page-title {
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .card {
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+            .card:hover {
+                border-color: var(--accent);
+                transform: translateY(-3px);
+                box-shadow: 0 4px 8px rgba(0, 180, 216, 0.2);
+            }
+
+        .detail-label {
+            font-weight: 600;
+            color: #FFF !important;
+            min-width: 100px;
+        }
+
+        .detail-row .detail-label,
+        .detail-row .detail-value {
+            color: #FF0;
+        }
+
+
+        .form-check-label {
+            font-weight: 600;
+            color: #FFF !important;
+        }
+
+    </style>
+</head>
+<body>
 
 @if (Model == null)
 {
@@ -38,3 +108,4 @@ else
         </div>
     </div>
 }
+</body>

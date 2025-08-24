@@ -3,20 +3,18 @@
     ViewData["Title"] = "DeleteUsers";
 }
 <!DOCTYPE html>
-<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delete Users</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         /* Stili globali */
         :root {
             --primary: #FFFFFF; /* Bianco */
             --secondary: #000000;
             --accent: #00B4D8; /* Azzurro chiaro */
-            --text: #F1F1F1;
+            --text: #FFF;
             --dark-bg: #111111;
             --light-bg: #1E1E1E;
             --alert-bg: #F8F9FA; /* Grigio chiarissimo per alert */
@@ -24,70 +22,25 @@
 
         body {
             font-family: 'Montserrat', sans-serif;
-            color: var(--text);
-            min-height: 100vh;
+            color:#FFF;
             background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('https://www.pixelstalk.net/wp-content/uploads/2016/06/Free-Images-HD-Dance-Wallpapers.jpg') fixed center/cover;
         }
 
 
-        .btn-outline-primary {
-            color: var(--accent);
-            border-color: var(--accent);
-        }
-
-        .btn-outline-success {
-            color: #28a745;
-            border-color: #28a745;
-        }
-
-        .btn-outline-danger {
-            color: #dc3545;
-            border-color: #dc3545;
-        }
-
-        /* Alert grigio chiarissimo */
-        .alert {
-            background-color: var(--alert-bg) !important;
-            color: #212529 !important;
-            border-left: 4px solid var(--accent);
-            border-radius: 0;
-        }
 
         .alert-warning {
             border-left-color: #FFC107;
         }
 
-        .alert-info {
-            border-left-color: var(--accent);
-        }
-
-        /* Footer */
-        .footer {
-            background-color: var(--secondary);
-            border-top: 1px solid #333;
-            padding: 1rem 0;
-        }
-
-        /* Stili personalizzati per la pagina */
-        .page-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background-color: rgba(30, 30, 30, 0.9);
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-            border: 1px solid var(--accent);
-        }
 
         .page-title {
             color: var(--accent);
             font-weight: 700;
             margin-bottom: 1rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .card {
-            background-color: rgba(0, 0, 0, 0.3);
+            background-color: rgba(0, 0, 0, 0.5);
             border: 1px solid #333;
             transition: all 0.3s ease;
             height: 100%;
@@ -99,65 +52,21 @@
                 box-shadow: 0 4px 8px rgba(0, 180, 216, 0.2);
             }
 
-        .form-check-input {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--accent);
-        }
-
-            .form-check-input:checked {
-                background-color: var(--accent);
-                border-color: var(--accent);
-            }
-
-        .user-details {
-            margin-top: 1rem;
-        }
-
-        .detail-row {
-            display: flex;
-            margin-bottom: 0.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 0.5rem;
-        }
-
         .detail-label {
             font-weight: 600;
-            color: var(--accent);
+            color: #FFF !important;
             min-width: 100px;
         }
 
-        .detail-value {
-            flex: 1;
+        .detail-row .detail-label,
+        .detail-row .detail-value {
+            color: #FF0;
         }
 
-            .detail-value a {
-                color: var(--text);
-                text-decoration: none;
-            }
 
-                .detail-value a:hover {
-                    color: var(--accent);
-                    text-decoration: underline;
-                }
-
-        .btn-danger {
-            background-color: #dc3545;
-            border-color: #dc3545;
-            padding: 0.5rem 1.5rem;
+        .form-check-label{
             font-weight: 600;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            border-color: #6c757d;
-            padding: 0.5rem 1.5rem;
-            font-weight: 600;
-        }
-
-        .form-group {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #FFF !important;
         }
 
     </style>
