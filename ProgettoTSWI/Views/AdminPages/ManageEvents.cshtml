@@ -11,65 +11,103 @@
     <style>
         /* Stili globali */
         :root {
-            --primary: #FFFFFF; /* Bianco */
+            --primary: #FFFFFF;
             --secondary: #000000;
-            --accent: #00B4D8; /* Azzurro chiaro */
-            --text: #FFF;
+            --accent: #00B4D8;
+            --text: #F1F1F1;
             --dark-bg: #111111;
             --light-bg: #1E1E1E;
-            --alert-bg: #F8F9FA; /* Grigio chiarissimo per alert */
+            --alert-bg: #F8F9FA;
         }
 
         body {
             font-family: 'Montserrat', sans-serif;
-            color: #FFF;
-            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('https://www.pixelstalk.net/wp-content/uploads/2016/06/Free-Images-HD-Dance-Wallpapers.jpg') fixed center/cover;
+            color: var(--text);
+            min-height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), 
+                        url('https://www.pixelstalk.net/wp-content/uploads/2016/06/Free-Images-HD-Dance-Wallpapers.jpg') fixed center/cover;
+            padding: 20px 0;
         }
 
-
-
-        .alert-warning {
-            border-left-color: #FFC107;
-        }
-
-
-        .page-title {
+        h1, h5 {
             color: var(--accent);
             font-weight: 700;
-            margin-bottom: 1rem;
         }
 
         .card {
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.3);
             border: 1px solid #333;
-            transition: all 0.3s ease;
-            height: 100%;
+            border-radius: 5px;
+            margin-bottom: 20px;
         }
 
-            .card:hover {
-                border-color: var(--accent);
-                transform: translateY(-3px);
-                box-shadow: 0 4px 8px rgba(0, 180, 216, 0.2);
-            }
-
-        .detail-label {
+        .card-header {
+            border-bottom: 1px solid #444;
             font-weight: 600;
-            color: #FFF !important;
-            min-width: 100px;
         }
 
-        .detail-row .detail-label,
-        .detail-row .detail-value {
-            color: #FF0;
+        .bg-primary {
+            background-color: rgba(0, 180, 216, 0.2) !important;
+            color: var(--accent) !important;
         }
 
+        .bg-warning {
+            background-color: rgba(255, 193, 7, 0.2) !important;
+            color: #ffc107 !important;
+        }
+
+        .bg-danger {
+            background-color: rgba(220, 53, 69, 0.2) !important;
+            color: #dc3545 !important;
+        }
+
+        .form-control {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid #444;
+            color: var(--text);
+        }
+
+        .form-control:focus { 
+            background-color: rgba(255, 255, 255, 0.15); 
+            border-color: var(--accent); 
+            color: var(--text); 
+            box-shadow: 0 0 0 0.2rem rgba(0, 180, 216, 0.25); 
+        } 
+
+
+        select option {
+            background-color: var(--dark-bg);
+            color: var(--text);
+            padding: 10px;
+        }
+
+        select option:hover,
+        select option:focus,
+        select option:checked {
+            background-color: var(--accent);
+            color: var(--secondary);
+        }
+
+        .btn {
+            padding: 8px 20px;
+            font-weight: 600;
+        }
+
+        .alert {
+            background-color: var(--alert-bg) !important;
+            color: #212529 !important;
+            border-left: 4px solid var(--accent);
+            border-radius: 0;
+        }
+
+        .form-check-input {
+            margin-top: 0.25rem;
+        }
 
         .form-check-label {
-            font-weight: 600;
-            color: #FFF !important;
+            margin-left: 5px;
         }
-
-    </style>
+        </style>
 </head>
 <body>
 
