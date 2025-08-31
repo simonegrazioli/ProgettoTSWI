@@ -88,7 +88,6 @@ public class ApiController : ControllerBase
             return BadRequest(new { message = "Dati di login non validi." });
         }
 
-        Console.WriteLine($"Tentativo di login per email: {model.Email}");
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
         if (user == null)
@@ -97,21 +96,15 @@ public class ApiController : ControllerBase
             return Unauthorized(new { message = "Credenziali errate." });
         }
 
-        Console.WriteLine($"\n--- DEBUG PASSWORD ---");
-        Console.WriteLine($"Password fornita: {model.Password}");
-        Console.WriteLine($"Hash nel DB: {user.Password}");
-        Console.WriteLine($"Lunghezza hash: {user.Password?.Length} caratteri");
 
         // Verifica 1: BCrypt standard
         bool isStandardValid = BCrypt.Net.BCrypt.Verify(model.Password, user.Password);
-        Console.WriteLine($"Verifica BCrypt standard: {isStandardValid}");
 
         // Verifica 2: BCrypt Enhanced
         bool isEnhancedValid = false;
         try
         {
             isEnhancedValid = BCrypt.Net.BCrypt.EnhancedVerify(model.Password, user.Password, HashType.SHA256);
-            Console.WriteLine($"Verifica BCrypt Enhanced (SHA256): {isEnhancedValid}");
         }
         catch (Exception ex)
         {
@@ -133,7 +126,6 @@ public class ApiController : ControllerBase
             Console.WriteLine("Password convertita con successo");
         }
 
-        Console.WriteLine($"Login riuscito per utente ID: {user.Id}");
         return Ok(new { user.Id, user.Email, user.Ruolo });
     }
 
