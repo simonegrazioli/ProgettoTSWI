@@ -156,10 +156,20 @@
     }
 </style>
 
-@if (TempData["Message"] != null)
+@if (TempData["ErrorMessage"] != null)
 {
-    <div class="alert alert-info">@TempData["Message"]</div>
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
 }
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
 
 
 <div class="container mt-5">

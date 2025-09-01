@@ -119,11 +119,12 @@ else
 {
     <div class="card mb-4">
         <div class="card-header bg-warning text-dark">
-            <h5>Edit Event</h5>
+            <h5>Promote User</h5>
         </div>
         <div class="card-body">
             <form asp-action="PromoteUser" asp-controller="AdminPromoteUser" method="post">
                 <div class="form-group mb-3">
+                    <h3>!Per promuovere un utente ad Admin esso non deve avere partecipazioni attive ad eventi!</h3>
                     <label>Seleziona un utente da Promuovere come admin</label>
                     <select name="selectedUser" class="form-control" required>
                         <option value="">Seleziona un utente</option>

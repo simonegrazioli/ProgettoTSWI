@@ -600,7 +600,11 @@ public class ApiController : ControllerBase
             {
                 // Verifica che l'email sia valida
                 if (new EmailAddressAttribute().IsValid(dto.Email))
+
                 {
+                    // Controllo email esistente
+                    if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
+                        return Conflict("Email già registrata");
                     existingUser.Email = dto.Email;
                 }
                 else
@@ -612,7 +616,8 @@ public class ApiController : ControllerBase
             if (!string.IsNullOrEmpty(dto.Password))
             {
                 // Qui dovresti fare l'hash della password
-                existingUser.Password = dto.Password;
+                existingUser.Password = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
             }
 
             // Salva le modifiche
@@ -627,9 +632,10 @@ public class ApiController : ControllerBase
         }
     }
 
+
 }
 
-    public class LoginRequest
+public class LoginRequest
 {
     [Required]
     [EmailAddress]

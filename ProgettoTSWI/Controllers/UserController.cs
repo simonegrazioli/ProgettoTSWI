@@ -40,7 +40,8 @@ namespace ProgettoTSWI.Controllers
 
         [HttpPost]
         [Authorize(Roles = "User")]
-        public async Task<IActionResult> Edit(ModifyUser user) {
+        public async Task<IActionResult> Edit(ModifyUser user)
+        {
             if (ModelState.IsValid)
             {
                 var client = _httpClientFactory.CreateClient();
@@ -54,25 +55,28 @@ namespace ProgettoTSWI.Controllers
                 client.DefaultRequestHeaders.Add("Cookie", Request.Headers["Cookie"].ToString());
                 var response = await client.PostAsJsonAsync(
                    "https://localhost:7087/api/Api/EditUser", user);
-                
+
+
                 if (!response.IsSuccessStatusCode)
                 {
-                    TempData["SuccessMessage"] = "Errore durante l'operazione!";
-
+                    if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+                    {
+                        TempData["SuccessMessage"] = "Errore! La mail inserita è gia presente";
+                    }
+                    else
+                    {
+                        TempData["SuccessMessage"] = "Errore durante l'operazione!";
+                    }
                     return RedirectToAction("Index");
                 }
 
-                TempData["SuccessMessage"] = "Ora partecipi all'evento!";
+                TempData["SuccessMessage"] = "Modifiche avvenute con successo";
                 return RedirectToAction("Index");
             }
             Console.WriteLine("model state non valido");
             TempData["SuccessMessage"] = "Dati inseriti in modo scoretto";
-            return  RedirectToAction("Index");
-
-
-
-
-
+            return RedirectToAction("Index");
         }
+
     }
 }
