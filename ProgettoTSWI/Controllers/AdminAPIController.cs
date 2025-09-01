@@ -57,7 +57,7 @@ namespace ProgettoTSWI.Controllers
             return Ok(confirmedEvents);
         }
 
-        // Ritorno tutti gli eventi confermati
+        // Ritorno gli utenti che hanno Ruolo="User" e non hanno partecipazioni
         [HttpGet("getUserP")]
         public async Task<IActionResult> GetUserP()
         {
